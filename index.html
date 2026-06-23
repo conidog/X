@@ -1,0 +1,1242 @@
+<!-- X投稿イメージ メーカー（@McDonaldsJapan）— 単体 / ツリー / 引用RP -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>X投稿イメージ メーカー</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{
+    --mc-red:#DA291C; --mc-red-d:#b81f14; --mc-yellow:#FFC72C;
+    --ink:#15171a; --muted2:#6b7280; --panel:#ffffff; --work:#f4f5f7;
+    --line2:#e4e7eb; --field:#fff; --field-line:#d4d9df;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Hiragino Kaku Gothic ProN",Meiryo,"Yu Gothic",sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{font-family:var(--font);background:var(--work);color:var(--ink);-webkit-font-smoothing:antialiased;}
+
+  /* ---- layout ---- */
+  .app{display:flex;flex-direction:column;height:100vh;min-height:0;}
+  .topbar{display:flex;align-items:center;gap:12px;background:var(--mc-red);color:#fff;padding:12px 18px;flex:0 0 auto;}
+  .topbar .logo{width:30px;height:30px;border-radius:8px;background:var(--mc-yellow);display:flex;align-items:center;justify-content:center;color:var(--mc-red);font-weight:900;font-size:20px;line-height:1;font-family:Georgia,serif;}
+  .topbar h1{font-size:16px;font-weight:800;letter-spacing:.02em;margin:0;}
+  .topbar .sub{font-size:12px;opacity:.85;margin-left:2px;}
+  .topbar .spacer{flex:1;}
+
+  .main{flex:1;display:flex;min-height:0;}
+  .controls{width:392px;flex:0 0 auto;background:var(--panel);border-right:1px solid var(--line2);display:flex;flex-direction:column;min-height:0;}
+  .preview{flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;background:
+     linear-gradient(0deg,rgba(0,0,0,.015),rgba(0,0,0,.015)),
+     repeating-linear-gradient(45deg,#eceef1 0 2px,transparent 2px 14px);}
+
+  /* ---- tabs ---- */
+  .tabs{display:flex;gap:4px;padding:12px 14px 0;flex:0 0 auto;}
+  .tab{flex:1;text-align:center;padding:9px 6px;border-radius:10px 10px 0 0;font-size:13px;font-weight:700;color:var(--muted2);background:transparent;border:1px solid transparent;border-bottom:none;cursor:pointer;}
+  .tab.on{color:var(--mc-red);background:var(--work);border-color:var(--line2);}
+  .tabs-rule{height:1px;background:var(--line2);margin:0 14px;}
+
+  .scroll{overflow-y:auto;padding:14px;flex:1;min-height:0;}
+  .scroll::-webkit-scrollbar{width:10px;}
+  .scroll::-webkit-scrollbar-thumb{background:#cdd2d8;border-radius:6px;border:2px solid var(--panel);}
+
+  .group{border:1px solid var(--line2);border-radius:14px;padding:13px 13px 15px;margin-bottom:13px;background:#fff;}
+  .group>.glabel{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--mc-red);text-transform:uppercase;margin:0 0 11px;display:flex;align-items:center;gap:7px;}
+  .group>.glabel::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--mc-yellow);box-shadow:0 0 0 2px var(--mc-red);}
+
+  label.f{display:block;font-size:11.5px;font-weight:700;color:var(--muted2);margin:0 0 5px;}
+  .row{display:flex;gap:9px;}
+  .row>div{flex:1;min-width:0;}
+  .fld{margin-bottom:11px;}
+  .fld:last-child{margin-bottom:0;}
+  input[type=text],input[type=number],textarea,select{
+    width:100%;font-family:var(--font);font-size:13.5px;color:var(--ink);
+    background:var(--field);border:1px solid var(--field-line);border-radius:9px;padding:8px 10px;outline:none;}
+  input:focus,textarea:focus,select:focus{border-color:var(--mc-red);box-shadow:0 0 0 3px rgba(218,41,28,.12);}
+  textarea{resize:vertical;min-height:78px;line-height:1.5;}
+  .handle-wrap{position:relative;}
+  .handle-wrap span{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted2);font-size:13.5px;pointer-events:none;}
+  .handle-wrap input{padding-left:22px;}
+
+  .seg{display:flex;background:var(--work);border:1px solid var(--field-line);border-radius:9px;padding:3px;gap:3px;}
+  .seg button{flex:1;border:none;background:transparent;border-radius:6px;padding:7px 4px;font-size:12.5px;font-weight:700;color:var(--muted2);cursor:pointer;font-family:var(--font);}
+  .seg button.on{background:#fff;color:var(--mc-red);box-shadow:0 1px 2px rgba(0,0,0,.08);}
+
+  .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  input[type=range].rng{width:100%;accent-color:var(--mc-red);margin:3px 0 0;cursor:pointer;}
+  .rngval{color:var(--mc-red);font-weight:800;}
+  .chk{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;color:var(--ink);cursor:pointer;user-select:none;}
+  .chk input{width:16px;height:16px;accent-color:var(--mc-red);}
+
+  .btn{font-family:var(--font);border:none;border-radius:9px;cursor:pointer;font-weight:700;}
+  .btn-ghost{background:var(--work);color:var(--ink);border:1px solid var(--field-line);padding:8px 12px;font-size:12.5px;}
+  .btn-ghost:hover{background:#eceef1;}
+  .btn-red{background:var(--mc-red);color:#fff;padding:8px 12px;font-size:12.5px;}
+  .btn-red:hover{background:var(--mc-red-d);}
+  .btn-add{width:100%;padding:11px;border:1.5px dashed var(--field-line);background:#fff;color:var(--mc-red);font-size:13px;}
+  .btn-add:hover{border-color:var(--mc-red);background:#fff7f6;}
+
+  .avatar-ctrl{display:flex;align-items:center;gap:11px;}
+  .avatar-ctrl .ava{width:46px;height:46px;border-radius:50%;object-fit:cover;border:1px solid var(--line2);flex:0 0 auto;background:#eee;}
+  .avatar-ctrl .acts{display:flex;flex-direction:column;gap:6px;}
+
+  .thumbs{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px;}
+  .thumb{position:relative;width:56px;height:56px;border-radius:9px;overflow:hidden;border:1px solid var(--line2);}
+  .thumb img,.thumb video{width:100%;height:100%;object-fit:cover;display:block;}
+  .thumb-loading{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#9aa3ab;font-size:18px;}
+  .thumb button{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(0,0,0,.65);color:#fff;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .hint{font-size:11px;color:var(--muted2);margin:7px 0 0;line-height:1.5;}
+
+  .thread-item{border:1px solid var(--line2);border-radius:13px;padding:12px;margin-bottom:11px;background:#fff;position:relative;}
+  .thread-item .tnum{position:absolute;top:-9px;left:13px;background:var(--mc-red);color:#fff;font-size:10.5px;font-weight:800;padding:2px 9px;border-radius:20px;letter-spacing:.04em;}
+  .thread-item .trm{position:absolute;top:9px;right:10px;}
+  .trm-btn{border:none;background:transparent;color:var(--muted2);font-size:12px;cursor:pointer;font-weight:700;}
+  .trm-btn:hover{color:var(--mc-red);}
+  .divider{height:1px;background:var(--line2);margin:13px 0;}
+  .sub-label{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--muted2);text-transform:uppercase;margin:0 0 9px;}
+
+  /* ---- preview stage ---- */
+  .pv-bar{display:flex;align-items:center;gap:10px;padding:11px 16px;background:rgba(255,255,255,.85);backdrop-filter:blur(4px);border-bottom:1px solid var(--line2);flex:0 0 auto;}
+  .pv-bar .t{font-size:12.5px;font-weight:700;color:var(--muted2);}
+  .pv-bar .spacer{flex:1;}
+  .pv-scroll{flex:1;overflow:auto;padding:24px 16px 40px;min-height:0;}
+  /* export modal */
+  .dlmodal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:18px;}
+  .dlmodal.on{display:flex;}
+  .dlbox{background:#fff;border-radius:16px;width:min(420px,92vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4);}
+  .dlhead{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;font-weight:800;font-size:14px;border-bottom:1px solid var(--line2);}
+  .dlclose{border:none;background:transparent;font-size:22px;line-height:1;color:var(--muted2);cursor:pointer;}
+  .dlimgwrap{overflow:auto;padding:14px;background:repeating-conic-gradient(#eef0f2 0% 25%, #fff 0% 50%) 50%/20px 20px;text-align:center;}
+  .dlimgwrap img{max-width:100%;max-height:64vh;width:auto;height:auto;object-fit:contain;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.18);display:inline-block;}
+  .dlmsg{display:none;padding:26px 18px;color:#33414d;font-size:13.5px;font-weight:700;line-height:1.7;}
+  .dlactions{display:flex;gap:9px;padding:13px 16px 4px;}
+  .dlactions .btn{flex:1;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;}
+  .dlhint{font-size:11px;color:var(--muted2);padding:8px 16px 15px;margin:0;line-height:1.6;}
+  .stage{display:flex;justify-content:center;transform-origin:top center;}
+  #capture{display:inline-block;}
+  /* device frame */
+  .bezel{background:#0b0b0c;padding:13px;border-radius:54px;box-shadow:0 18px 50px rgba(0,0,0,.28), inset 0 0 0 2px #2b2b2e;}
+  .screen{width:390px;height:844px;overflow:hidden;border-radius:44px;background:var(--bg);position:relative;}
+  #capture.noframe .screen{border-radius:22px;box-shadow:0 6px 26px rgba(0,0,0,.14);border:1px solid var(--border);}
+  .island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:104px;height:29px;background:#000;border-radius:16px;z-index:6;}
+  #capture.noframe .island{display:none;}
+  /* status bar */
+  .statusbar{display:flex;align-items:center;justify-content:space-between;padding:15px 27px 7px;color:var(--text);font-size:14.5px;font-weight:700;letter-spacing:.01em;}
+  .statusbar .sb-r{display:flex;align-items:center;gap:6px;}
+  .statusbar svg{display:block;fill:currentColor;}
+  /* X home header */
+  .x-header{display:flex;align-items:center;justify-content:space-between;padding:13px 17px 4px;}
+  .x-header .h-ava{width:31px;height:31px;border-radius:50%;background-color:#c4ccd4;background-size:cover;background-position:center;}
+  .x-header .h-logo svg{width:27px;height:27px;fill:var(--text);display:block;}
+  .x-header .h-set svg{width:23px;height:23px;fill:var(--text);display:block;}
+  /* おすすめ / フォロー中 tabs */
+  .x-tabs{display:flex;border-bottom:1px solid var(--border);}
+  .x-tab{flex:1;text-align:center;position:relative;padding:14px 0 15px;font-size:13px;font-weight:600;color:var(--muted);}
+  .x-tab.on{color:var(--text);font-weight:800;}
+  .x-tab.on::after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:56px;height:4px;border-radius:4px;background:var(--blue);}
+  .feed{padding:14px 12px 88px;}
+  /* compose FAB */
+  .fab{position:absolute;right:16px;bottom:94px;width:54px;height:54px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.28);z-index:5;}
+  .fab svg{width:24px;height:24px;fill:#fff;display:block;}
+  /* bottom bar pinned to screen bottom */
+  .botwrap{position:absolute;left:0;right:0;bottom:0;background:var(--bg);z-index:4;}
+  .bottomnav{display:flex;align-items:center;justify-content:space-around;border-top:1px solid var(--border);padding:11px 12px 7px;}
+  .bottomnav>div{display:flex;}
+  .bottomnav svg{width:25px;height:25px;fill:var(--muted);display:block;}
+  .bottomnav .active svg{fill:var(--text);}
+  .homebar{height:5px;width:134px;background:var(--text);opacity:.92;border-radius:3px;margin:4px auto 9px;}
+  #capture.noframe .homebar{display:none;}
+
+  /* ---- X post (faithful) ---- */
+  .tw{ --bg:#fff; --text:#0f1419; --muted:#536471; --border:rgb(239,243,244); --line:#cfd9de; --blue:#1d9bf0; --cardline:#e6e9ea; --name-size:15px; --text-size:15px; }
+  .tw.dark{ --bg:#000; --text:#e7e9ea; --muted:#71767b; --border:#2f3336; --line:#3a3f43; --blue:#1d9bf0; --cardline:#2f3336; }
+  .tw{color:var(--text);}
+  .tw-post{display:flex;}
+  .tw-left{flex:0 0 40px;display:flex;flex-direction:column;align-items:center;margin-right:12px;}
+  .tw-avatar{width:40px;height:40px;border-radius:50%;background-color:#ddd;background-size:cover;background-position:center;flex:0 0 auto;}
+  .tw-avatar.sq{border-radius:9px;}
+  .tw-line{width:2px;background:var(--line);flex:1;margin-top:4px;border-radius:2px;}
+  .tw-body{flex:1;min-width:0;padding-bottom:12px;}
+  .tw-post:last-child .tw-body{padding-bottom:2px;}
+  .tw-head{display:flex;align-items:center;flex-wrap:nowrap;gap:2px;line-height:1.3;}
+  .tw-name{font-weight:700;font-size:var(--name-size);color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0;}
+  .tw-handle,.tw-dot,.tw-time{color:var(--muted);font-size:var(--name-size);}
+  .tw-handle{margin-left:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:3;min-width:0;}
+  .tw-dot,.tw-time{flex:0 0 auto;white-space:nowrap;}
+  .tw-dot{margin:0 2px;}
+  .tw-more{margin-left:auto;padding-left:8px;color:var(--muted);display:flex;flex:0 0 auto;}
+  .tw-more svg{width:18.75px;height:18.75px;fill:currentColor;}
+  .tw-badge{display:inline-flex;margin-left:1px;flex:0 0 auto;}
+  .tw-badge svg{width:19px;height:19px;}
+  .tw-text{font-size:var(--text-size);line-height:1.45;color:var(--text);white-space:pre-wrap;word-break:break-word;margin-top:2px;}
+  .tw-text a{color:var(--blue);text-decoration:none;}
+  .tw-text:empty{display:none;}
+  #capture.hide-text .tw-text{visibility:hidden;}
+  #capture.exporting .bezel{box-shadow:inset 0 0 0 2px #2b2b2e;}
+  #capture.exporting.noframe .screen{box-shadow:none;}
+  #capture.pptx-bg .tw-text,#capture.pptx-bg .tw-media,#capture.pptx-bg .tw-actions{visibility:hidden;}
+  .arch-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+  .arch-item{display:flex;align-items:center;gap:8px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff;}
+  .arch-meta{min-width:0;flex:1;}
+  .arch-name{font-size:12.5px;font-weight:700;color:#0f1419;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .arch-sub{font-size:11px;color:#536471;margin-top:2px;}
+  .arch-btns{display:flex;gap:6px;flex:0 0 auto;}
+  .arch-btns .btn{padding:5px 10px;font-size:12px;}
+
+  .tw-media{margin-top:12px;border:1px solid var(--border);border-radius:16px;overflow:hidden;position:relative;}
+  .tw-media.n1 img{width:100%;height:auto;display:block;}
+  .tw-grid{position:relative;width:100%;height:200px;background:var(--bg);}
+  .tw-cell{position:absolute;background-color:#e8e8e8;background-size:cover;background-position:center;border:1px solid var(--bg);}
+  /* 2 images: two equal columns */
+  .g2 .c1{left:0;top:0;width:50%;height:100%;}
+  .g2 .c2{left:50%;top:0;width:50%;height:100%;}
+  /* 3 images: left tall + two stacked right (X spec) */
+  .g3 .c1{left:0;top:0;width:50%;height:100%;}
+  .g3 .c2{left:50%;top:0;width:50%;height:50%;}
+  .g3 .c3{left:50%;top:50%;width:50%;height:50%;}
+  /* 4 images: 2x2 */
+  .g4 .c1{left:0;top:0;width:50%;height:50%;}
+  .g4 .c2{left:50%;top:0;width:50%;height:50%;}
+  .g4 .c3{left:0;top:50%;width:50%;height:50%;}
+  .g4 .c4{left:50%;top:50%;width:50%;height:50%;}
+  .tw-video{position:relative;}
+  .tw-video img,.tw-video video{width:100%;height:auto;display:block;}
+  .tw-vph{width:100%;height:200px;background:#cfd9de;display:flex;align-items:center;justify-content:center;color:#5b6b78;font-size:13px;font-weight:700;}
+  .tw-vph-dark{background:linear-gradient(135deg,#10151a 0%,#2a333b 100%);}
+  .tw-playwrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+  .tw-play{width:50px;height:50px;border-radius:50%;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;}
+  .tw-play svg{width:24px;height:24px;fill:#fff;margin-left:3px;}
+  .tw-vdur{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.6);color:#fff;font-size:12.5px;font-weight:700;padding:1px 7px;border-radius:5px;line-height:1.5;}
+
+  .tw-quote{margin-top:12px;border:1px solid var(--cardline);border-radius:16px;overflow:hidden;}
+  .tw-quote .qhead{display:flex;align-items:center;gap:4px;padding:9px 12px 1px;flex-wrap:wrap;}
+  .tw-quote .qava{width:20px;height:20px;border-radius:50%;background-color:#ddd;background-size:cover;background-position:center;flex:0 0 auto;}
+  .tw-quote .qava.sq{border-radius:5px;}
+  .tw-quote .qname{font-weight:700;font-size:14px;color:var(--text);}
+  .tw-quote .qhandle,.tw-quote .qdot,.tw-quote .qtime{color:var(--muted);font-size:14px;}
+  .tw-quote .qbadge svg{width:16px;height:16px;}
+  .tw-quote .qtext{font-size:14px;line-height:1.4;color:var(--text);white-space:pre-wrap;word-break:break-word;padding:2px 12px 11px;}
+  .tw-quote .qtext:empty{padding-bottom:11px;}
+  .tw-quote img.qmedia{width:100%;height:auto;display:block;}
+
+  .tw-actions{display:flex;align-items:center;justify-content:space-between;max-width:430px;margin-top:12px;color:var(--muted);}
+  .act{display:flex;align-items:center;gap:6px;font-size:13px;}
+  .act svg{width:18.75px;height:18.75px;fill:currentColor;}
+  .act-grp{display:flex;gap:2px;}
+  .act-grp .act{padding:0;}
+
+  @media(max-width:880px){
+    .main{flex-direction:column;}
+    .controls{width:100%;border-right:none;border-bottom:1px solid var(--line2);max-height:54vh;}
+    .preview{min-height:46vh;}
+  }
+</style>
+
+<div class="app">
+  <div class="topbar">
+    <div class="logo">M</div>
+    <div>
+      <h1>X投稿イメージ メーカー</h1>
+      <div class="sub">@McDonaldsJapan ／ スマホ表示プレビュー（単体・ツリー・引用RP）</div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+
+  <div class="main">
+    <div class="controls">
+      <div class="tabs" id="tabs">
+        <button class="tab" data-mode="single">単体投稿</button>
+        <button class="tab" data-mode="thread">ツリー</button>
+        <button class="tab" data-mode="quote">引用RP</button>
+      </div>
+      <div class="tabs-rule"></div>
+      <div class="scroll" id="editor"></div>
+    </div>
+
+    <div class="preview">
+      <div class="pv-bar">
+        <div class="t">プレビュー</div>
+        <div class="spacer"></div>
+        <button class="btn btn-ghost" id="zoomBtn">原寸表示</button>
+        <button class="btn btn-ghost" id="pptBtn">PPTX（投稿文編集可）</button>
+        <button class="btn btn-red" id="dlBtn">画像を保存（PNG）</button>
+      </div>
+      <div class="pv-scroll" id="pvScroll">
+        <div class="stage" id="stage">
+          <div id="capture" class="tw"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="dlmodal" id="dlModal">
+  <div class="dlbox">
+    <div class="dlhead"><span>書き出し完了</span><button class="dlclose" id="dlClose">×</button></div>
+    <div class="dlimgwrap"><img id="dlImg" alt="生成画像"><div id="dlMsg" class="dlmsg">PPTXファイルを生成しました。下の「ダウンロード」から保存してください。</div></div>
+    <div class="dlactions">
+      <a class="btn btn-red" id="dlSave" download>ダウンロード</a>
+      <button class="btn btn-ghost" id="dlCopy">画像をコピー</button>
+      <a class="btn btn-ghost" id="dlOpen" target="_blank" rel="noopener">新しいタブで開く</a>
+    </div>
+    <p class="dlhint">保存できない場合：画像を右クリック→「画像を保存」、スマホは長押しで保存。PPTXは「新しいタブで開く」から保存してください。</p>
+  </div>
+</div>
+
+<script>
+/* ============================ icons ============================ */
+const ICON = {
+  more:'<svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>',
+  reply:'<svg viewBox="0 0 24 24"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 8.129 3.64 8.129 8.13 0 2.96-1.607 5.68-4.196 7.11l-8.054 4.46v-3.69h-.067c-4.49.1-8.183-3.51-8.183-8.01zm8.005-6c-3.317 0-6.005 2.69-6.005 6 0 3.37 2.77 6.08 6.138 6.01l.351-.01h1.761v2.3l5.087-2.81c1.951-1.08 3.163-3.13 3.163-5.36 0-3.39-2.744-6.13-6.129-6.13H9.756z"/></svg>',
+  rt:'<svg viewBox="0 0 24 24"><path d="M4.75 3.79l4.603 4.3-1.706 1.82L6 8.38v7.37c0 .97.784 1.75 1.75 1.75H13V20H7.75c-2.347 0-4.25-1.9-4.25-4.25V8.38L1.853 9.91.147 8.09l4.603-4.3zm11.5 2.71H11V4h5.25c2.347 0 4.25 1.9 4.25 4.25v7.37l1.647-1.53 1.706 1.82-4.603 4.3-4.603-4.3 1.706-1.82L18 15.62V8.25c0-.97-.784-1.75-1.75-1.75z"/></svg>',
+  like:'<svg viewBox="0 0 24 24"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91zm4.187 7.69c-1.351 2.48-4.001 5.12-8.379 7.67l-.503.3-.504-.3c-4.379-2.55-7.029-5.19-8.382-7.67-1.36-2.5-1.41-4.86-.514-6.67.887-1.79 2.647-2.91 4.601-3.01 1.651-.09 3.368.56 4.798 2.01 1.429-1.45 3.146-2.1 4.796-2.01 1.954.1 3.714 1.22 4.601 3.01.896 1.81.846 4.17-.514 6.67z"/></svg>',
+  view:'<svg viewBox="0 0 24 24"><path d="M8.75 21V3h2v18h-2zM18 21V8.5h2V21h-2zM4 21l.004-10h2L6 21H4zm9.248 0v-7h2v7h-2z"/></svg>',
+  bookmark:'<svg viewBox="0 0 24 24"><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"/></svg>',
+  share:'<svg viewBox="0 0 24 24"><path d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z"/></svg>'
+};
+function badgeSVG(type,small){
+  if(type==='none') return '';
+  const cls = small?'qbadge':'tw-badge';
+  if(type==='blue'){
+    return '<span class="'+cls+'"><svg viewBox="0 0 24 24"><path fill="#1d9bf0" d="M22.25 12c0-1.43-.88-2.67-2.19-3.34.46-1.39.2-2.9-.81-3.91s-2.52-1.27-3.91-.81c-.66-1.31-1.91-2.19-3.34-2.19s-2.67.88-3.33 2.19c-1.4-.46-2.91-.2-3.92.81s-1.26 2.52-.8 3.91c-1.31.67-2.2 1.91-2.2 3.34s.89 2.67 2.2 3.34c-.46 1.39-.21 2.9.8 3.91s2.52 1.26 3.91.81c.67 1.31 1.91 2.19 3.34 2.19s2.68-.88 3.34-2.19c1.39.45 2.9.2 3.91-.81s1.27-2.52.81-3.91c1.31-.67 2.19-1.91 2.19-3.34zm-11.71 4.2L6.8 12.46l1.41-1.42 2.26 2.26 4.8-5.23 1.47 1.36-6.2 6.77z"/></svg></span>';
+  }
+  // gold (Verified Organization)
+  return '<span class="'+cls+'"><svg viewBox="0 0 22 22"><defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F8D24B"/><stop offset="1" stop-color="#D99B0B"/></linearGradient></defs><path fill="url(#g1)" d="M13.596 3.011L11 .5 8.404 3.011l-3.576-.506-.624 3.558-3.19 1.692L2.6 11l-1.586 3.245 3.19 1.692.624 3.558 3.576-.506L11 21.5l2.596-2.511 3.576.506.624-3.558 3.19-1.692L19.4 11l1.586-3.245-3.19-1.692-.624-3.558-3.576.506zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246-5.68 6.206z"/></svg></span>';
+}
+/* default placeholder avatars (NOT a real brand logo — solid colour discs) */
+function disc(color,letter,sz){
+  sz=sz||80;
+  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+sz+'" height="'+sz+'" viewBox="0 0 80 80"><rect width="80" height="80" rx="40" fill="'+color+'"/><text x="40" y="53" font-size="40" font-family="Georgia,serif" font-weight="700" fill="#ffffff" text-anchor="middle">'+letter+'</text></svg>';
+  return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg);
+}
+const MCD_AVATAR = 'data:image/jpeg;base64,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x5f9gZd/z5Rr+JPEN74o8TXWu6ikCXVyVLrApVBhQowCT2ArIoor1adONOKhBWSPVpUo0oKnBWS0QUUUVZYUCilH0zQDPon9nHP/AAiuujt9sj/9F17VXy/8K/ibpHgLRtQtNS0+9unup1mU2+3CgLt53EV33/DRfhT/AKAWsf8AkL/4qvy7P8kx2Ix9SrRptxdtdOy8z8wzrJsbWx1WpSpNxb0enZHqWuLv8KaomcZs5hn/ALZtXw0Puj6Cvou//aC8MXekXVomiaurTQvGGPl4BZSB/F71864wAPQYr6HhHL8Tg4VViIct2rfce/wngcRhFVWIg43tb8Qooor7A+wCnL99fqKbTl++v1FAmDffb6mm05vvt9TTaAQUUUUDCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACnL99fqKbTl++v1FAmDffb6mm05vvt9TTaAQUUUUDCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACnL99fqKbTl++v1FAmDffb6mm09lbzG+Rup7Um1/wDnm35UCTG0U7a3/PNvyo2t/wA82/KgdxtFO2t/zzb8qNrf882/KgLjaKdtb/nm35UbW/55t+VAXG0U7a3/ADzb8qNrf882/KgLjaKdtb/nm35UbW/55t+VAXG0U7a3/PNvyo2t/wA82/KgLjaKdtb/AJ5t+VG1v+ebflQFxtFO2t/zzb8qNrf882/KgLjaKdtb/nm35UbW/wCebflQFxtFO2t/zzb8qNrf882/KgLjaKdtb/nm35UbW/55t+VAXG0U7a3/ADzb8qNrf882/KgLjaKdtb/nm35UbW/55t+VAXG05f8AWL9RRtf/AJ5t+VKqv5i/I3UdqBNn/9k=';
+const DEFAULT_AVATAR = MCD_AVATAR;
+const DEFAULT_QAVATAR = disc('#1d9bf0','◎');
+
+/* ============================ state ============================ */
+function newPost(){ return {text:'', images:[], video:null, time:'1時間', replies:120, reposts:480, likes:5200, views:148000}; }
+const state = {
+  mode:'single',
+  theme:'light',
+  showStats:true,
+  device:true,
+  chrome:true,
+  statusTime:'9:41',
+  homeTab:'recommend',
+  nameSize:13,
+  textSize:13,
+  account:{ name:'マクドナルド', handle:'McDonaldsJapan', avatar:null, badge:'gold' },
+  posts:[ Object.assign(newPost(), {text:'投稿文を書いてみよう！\nあまり広告っぽくならないように心がけて！\n#ハッシュタグは1つ以内がオススメだよ'}) ],
+  quoted:{ name:'お腹すいた', handle:'harapeko_2026', avatar:null, badge:'none', time:'3時間', text:'今日のお昼、何にしよう…☕️', image:null }
+};
+
+/* ============================ helpers ============================ */
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function linkify(s){
+  let h = esc(s);
+  h = h.replace(/(https?:\/\/[^\s<]+)/g,'<a>$1</a>');
+  h = h.replace(/([#＃][^\s<#＃]+)/g,'<a>$1</a>');
+  h = h.replace(/(^|[\s(])([@＠][A-Za-z0-9_]+)/g,'$1<a>$2</a>');
+  return h;
+}
+function fmt(n){
+  n = Number(n)||0;
+  if(n<10000) return n.toLocaleString('ja-JP');
+  const man=Math.floor(n/1000)/10;          // floor to 1 decimal place
+  return (Number.isInteger(man)? man : man.toFixed(1)) + '万';
+}
+
+/* ============================ archive (drafts) ============================ */
+const ARCH_KEY='xmock_archives_v1';
+const _mem={};
+const Store={
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return _mem[k]!==undefined?_mem[k]:null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){ _mem[k]=v; } }
+};
+let archives=[];
+function loadArchives(){ try{ archives=JSON.parse(Store.get(ARCH_KEY)||'[]')||[]; }catch(e){ archives=[]; } }
+function persistArchives(){ Store.set(ARCH_KEY, JSON.stringify(archives)); }
+function snapshot(){
+  return {
+    mode:state.mode, theme:state.theme, showStats:state.showStats, device:state.device,
+    chrome:state.chrome, statusTime:state.statusTime, homeTab:state.homeTab,
+    nameSize:state.nameSize, textSize:state.textSize,
+    account:JSON.parse(JSON.stringify(state.account)),
+    posts:JSON.parse(JSON.stringify(state.posts)),
+    quoted:JSON.parse(JSON.stringify(state.quoted))
+  };
+}
+function applySnapshot(d){
+  state.mode=d.mode; state.theme=d.theme; state.showStats=d.showStats; state.device=d.device;
+  state.chrome=d.chrome; state.statusTime=d.statusTime; state.homeTab=d.homeTab;
+  state.nameSize=d.nameSize; state.textSize=d.textSize;
+  state.account=JSON.parse(JSON.stringify(d.account));
+  state.posts=JSON.parse(JSON.stringify(d.posts));
+  state.quoted=JSON.parse(JSON.stringify(d.quoted));
+}
+function archiveLabel(){
+  const t=((state.posts[0]&&state.posts[0].text)||'').trim().replace(/\s+/g,' ');
+  return t ? t.slice(0,24) : '（無題の投稿案）';
+}
+function saveCurrentDraft(){
+  const id='a'+Date.now()+Math.floor(Math.random()*1000);
+  const d=new Date();
+  const p2=n=>String(n).padStart(2,'0');
+  const ts=d.getFullYear()+'/'+p2(d.getMonth()+1)+'/'+p2(d.getDate())+' '+p2(d.getHours())+':'+p2(d.getMinutes());
+  archives.unshift({ id, ts, label:archiveLabel(), mode:state.mode, data:snapshot() });
+  persistArchives();
+}
+function deleteArchive(id){ archives=archives.filter(a=>a.id!==id); persistArchives(); }
+function restoreArchive(id){ const a=archives.find(x=>x.id===id); if(a){ applySnapshot(a.data); renderEditor(); } }
+
+/* ============================ preview render ============================ */
+function avatarDiv(url, cls){ return '<div class="'+cls+'" style="background-image:url(\''+url+'\')"></div>'; }
+function mediaHTML(images){
+  if(!images||!images.length) return '';
+  const n=Math.min(images.length,4);
+  if(n===1) return '<div class="tw-media n1"><img src="'+images[0]+'"></div>';
+  let cells='';
+  for(let k=0;k<n;k++) cells+='<div class="tw-cell c'+(k+1)+'" style="background-image:url(\''+images[k]+'\')"></div>';
+  return '<div class="tw-media"><div class="tw-grid g'+n+'">'+cells+'</div></div>';
+}
+function videoMediaHTML(vid){
+  const play='<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+  const dur = vid.duration?'<div class="tw-vdur">'+esc(vid.duration)+'</div>':'';
+  let inner, showPlay=true, showExtra=true;
+  if(vid.poster){ inner='<img src="'+vid.poster+'">'; }
+  else if(vid.loading){ inner='<div class="tw-vph"><span>サムネイル読み込み中…</span></div>'; showPlay=false; showExtra=false; }
+  else { inner='<div class="tw-vph tw-vph-dark"></div>'; }
+  return '<div class="tw-media tw-video">'
+    + inner
+    + (showPlay?'<div class="tw-playwrap"><div class="tw-play">'+play+'</div></div>':'')
+    + (showExtra?dur:'') + '</div>';
+}
+function mediaBlock(p){
+  if(p.video&&(p.video.poster||p.video.url)) return videoMediaHTML(p.video);
+  return mediaHTML(p.images);
+}
+function quoteCardHTML(){
+  const q=state.quoted;
+  const ava=q.avatar||DEFAULT_QAVATAR;
+  const avaCls='qava'+(q.badge==='gold'?' sq':'');
+  const media = q.image?'<img class="qmedia" src="'+q.image+'">':'';
+  return '<div class="tw-quote">'
+    + '<div class="qhead">'+avatarDiv(ava,avaCls)
+    + '<span class="qname">'+esc(q.name)+'</span>'+badgeSVG(q.badge,true)
+    + '<span class="qhandle">@'+esc(q.handle)+'</span><span class="qdot">·</span><span class="qtime">'+esc(q.time)+'</span></div>'
+    + '<div class="qtext">'+linkify(q.text)+'</div>'
+    + media + '</div>';
+}
+function actionsHTML(p){
+  if(!state.showStats) return '';
+  return '<div class="tw-actions">'
+    + '<div class="act">'+ICON.reply+'<span>'+fmt(p.replies)+'</span></div>'
+    + '<div class="act">'+ICON.rt+'<span>'+fmt(p.reposts)+'</span></div>'
+    + '<div class="act">'+ICON.like+'<span>'+fmt(p.likes)+'</span></div>'
+    + '<div class="act">'+ICON.view+'<span>'+fmt(p.views)+'</span></div>'
+    + '<div class="act-grp"><div class="act">'+ICON.bookmark+'</div><div class="act">'+ICON.share+'</div></div>'
+    + '</div>';
+}
+function postHTML(p, opts){
+  opts=opts||{};
+  const a=state.account;
+  const ava=a.avatar||DEFAULT_AVATAR;
+  const avaCls='tw-avatar'+(a.badge==='gold'?' sq':'');
+  const line = opts.lineBottom?'<div class="tw-line"></div>':'';
+  return '<div class="tw-post">'
+    + '<div class="tw-left">'+avatarDiv(ava,avaCls)+line+'</div>'
+    + '<div class="tw-body">'
+    +   '<div class="tw-head"><span class="tw-name">'+esc(a.name)+'</span>'+badgeSVG(a.badge,false)
+    +     '<span class="tw-handle">@'+esc(a.handle)+'</span><span class="tw-dot">·</span><span class="tw-time">'+esc(p.time)+'</span>'
+    +     '<span class="tw-more">'+ICON.more+'</span></div>'
+    +   '<div class="tw-text">'+linkify(p.text)+'</div>'
+    +   mediaBlock(p)
+    +   (opts.quote?quoteCardHTML():'')
+    +   actionsHTML(p)
+    + '</div></div>';
+}
+function statusBarHTML(){
+  return '<div class="statusbar"><div class="sb-l">'+esc(state.statusTime)+'</div><div class="sb-r">'
+   + '<svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>'
+   + '<svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.4c2.6 0 5 1 6.8 2.7l-1.5 1.5C12.4 5.3 10.5 4.5 8.5 4.5S4.6 5.3 3.2 6.6L1.7 5.1C3.5 3.4 5.9 2.4 8.5 2.4zm0 3.5c1.6 0 3 .6 4 1.7L11 9.1c-.7-.7-1.5-1.1-2.5-1.1s-1.8.4-2.5 1.1L4.5 7.6c1-1.1 2.4-1.7 4-1.7zm0 3.4c.7 0 1.4.3 1.9.8L8.5 11.9 6.6 10.1c.5-.5 1.2-.8 1.9-.8z"/></svg>'
+   + '<svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.6" y="0.6" width="21" height="11.8" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".35"/><rect x="2.1" y="2.1" width="16.5" height="8.8" rx="1.6"/><rect x="23" y="4" width="2" height="5" rx="1" opacity=".4"/></svg>'
+   + '</div></div>';
+}
+function homeHeaderHTML(){
+  const xlogo='<svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>';
+  const sparkle='<svg viewBox="0 0 24 24"><path d="M11 3c.5 0 .9.34 1 .82l1.2 5 5 1.2c.48.1.82.5.82 1s-.34.9-.82 1l-5 1.2-1.2 5c-.1.48-.5.82-1 .82s-.9-.34-1-.82l-1.2-5-5-1.2C3.34 11.9 3 11.5 3 11s.34-.9.82-1l5-1.2 1.2-5C10.1 3.34 10.5 3 11 3zM18.5 14c.3 0 .55.2.62.5l.55 2.33 2.33.55c.3.07.5.32.5.62s-.2.55-.5.62l-2.33.55-.55 2.33c-.07.3-.32.5-.62.5s-.55-.2-.62-.5l-.55-2.33-2.33-.55c-.3-.07-.5-.32-.5-.62s.2-.55.5-.62l2.33-.55.55-2.33c.07-.3.32-.5.62-.5z"/></svg>';
+  return '<div class="x-header"><div class="h-ava" style="background-image:url(\''+disc('#c4ccd4',' ')+'\')"></div><div class="h-logo">'+xlogo+'</div><div class="h-set">'+sparkle+'</div></div>';
+}
+function tabsHTML(){
+  const a=state.homeTab;
+  return '<div class="x-tabs"><div class="x-tab'+(a==='recommend'?' on':'')+'" data-tab="recommend">おすすめ</div>'
+    + '<div class="x-tab'+(a==='following'?' on':'')+'" data-tab="following">フォロー中</div></div>';
+}
+function fabHTML(){
+  return '<div class="fab"><svg viewBox="0 0 24 24"><path d="M23 3c-6.62-.1-10.38 2.421-13.05 6.03C7.29 12.61 6 17.331 6 22h2c0-1.007.07-2.012.19-3H12c4.1 0 7.48-3.082 7.94-7.054C22.79 10.147 23.17 6.359 23 3zm-7 8h-1.5v2H16c.63-.016 1.2-.08 1.72-.188C16.95 15.24 14.68 17 12 17H8.55c.57-2.512 1.57-4.851 3-6.78 2.16-2.912 5.29-4.911 9.45-5.187C20.95 8.079 19.9 11 16 11zM4 9V6H1V4h3V1h2v3h3v2H6v3H4z"/></svg></div>';
+}
+function bottomNavHTML(){
+  const home='<svg viewBox="0 0 24 24"><path d="M12 1.7l9.6 8.4-1.32 1.5L20 11v10h-5.6v-5.5h-3.4V21H4.7V11l-1.28.6L2.4 10z"/></svg>';
+  const search='<svg viewBox="0 0 24 24"><path d="M10.25 3.75a6.5 6.5 0 014.62 11.07l4.66 4.66-1.41 1.41-4.66-4.66A6.5 6.5 0 1110.25 3.75zm0 2a4.5 4.5 0 100 9 4.5 4.5 0 000-9z"/></svg>';
+  const comm='<svg viewBox="0 0 24 24"><path d="M9 4a3 3 0 100 6 3 3 0 000-6zM3.5 18c0-2.6 2.6-4.5 5.5-4.5s5.5 1.9 5.5 4.5V19H3.5v-1zm13-9.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zm.5 6c2.4 0 4 1.5 4 3.5V19h-3.1c-.1-1.6-.9-2.9-2.1-3.8.4-.5 1-.7 1.2-.7z"/></svg>';
+  const bell='<svg viewBox="0 0 24 24"><path d="M12 2a6 6 0 00-6 6c0 3.6-.8 5.4-1.55 6.45-.42.55-.6 1.25-.3 1.85.3.6.9.95 1.55.95H18.3c.65 0 1.25-.35 1.55-.95.3-.6.12-1.3-.3-1.85C18.8 13.4 18 11.6 18 8a6 6 0 00-6-6zm0 20a2.5 2.5 0 002.45-2h-4.9A2.5 2.5 0 0012 22z"/></svg>';
+  const mail='<svg viewBox="0 0 24 24"><path d="M3 5.5h18c.83 0 1.5.67 1.5 1.5v10c0 .83-.67 1.5-1.5 1.5H3c-.83 0-1.5-.67-1.5-1.5V7c0-.83.67-1.5 1.5-1.5zm.9 2L12 12.5 20.1 7.5H3.9zM3.5 9.3V16.5h17V9.3L12 14.7 3.5 9.3z"/></svg>';
+  return '<div class="bottomnav"><div class="active">'+home+'</div><div>'+search+'</div><div>'+comm+'</div><div>'+bell+'</div><div>'+mail+'</div></div>';
+}
+function renderPreview(){
+  const cap=document.getElementById('capture');
+  cap.className='tw'+(state.theme==='dark'?' dark':'')+(state.device?'':' noframe');
+  cap.style.setProperty('--name-size', state.nameSize+'px');
+  cap.style.setProperty('--text-size', state.textSize+'px');
+  let feed='';
+  if(state.mode==='single'){
+    feed = postHTML(state.posts[0],{});
+  }else if(state.mode==='thread'){
+    feed = state.posts.map((p,i)=>postHTML(p,{lineBottom: i<state.posts.length-1})).join('');
+  }else{ // quote
+    feed = postHTML(state.posts[0],{quote:true});
+  }
+  const island = state.device?'<div class="island"></div>':'';
+  const top = state.chrome?(statusBarHTML()+homeHeaderHTML()+tabsHTML()):'';
+  const fab = state.chrome?fabHTML():'';
+  const nav = state.chrome?bottomNavHTML():'';
+  const homebar = state.device?'<div class="homebar"></div>':'';
+  const botwrap = (nav||homebar)?'<div class="botwrap">'+nav+homebar+'</div>':'';
+  const screen = '<div class="screen">'+island+top+'<div class="feed">'+feed+'</div>'+fab+botwrap+'</div>';
+  cap.innerHTML = state.device?('<div class="bezel">'+screen+'</div>'):screen;
+  fitPreview();
+}
+
+/* ============================ fit / zoom ============================ */
+let zoomMode=false;
+function fitPreview(){
+  const wrap=document.getElementById('pvScroll');
+  const stage=document.getElementById('stage');
+  const card=document.getElementById('capture');
+  const natW=card.offsetWidth||390;
+  let scale=1;
+  if(!zoomMode){
+    const avail=wrap.clientWidth-32;
+    scale=Math.min(1, avail/natW);
+  }
+  card.style.transform='scale('+scale+')';
+  stage.style.height=(card.offsetHeight*scale)+'px';
+}
+window.addEventListener('resize',fitPreview);
+document.getElementById('zoomBtn').addEventListener('click',function(){
+  zoomMode=!zoomMode;
+  this.textContent=zoomMode?'画面に合わせる':'原寸表示';
+  fitPreview();
+});
+
+/* ============================ image utils ============================ */
+function readFiles(files, cb){
+  const arr=Array.from(files); let out=[]; let done=0;
+  if(!arr.length){cb([]);return;}
+  arr.forEach((f,i)=>{
+    const r=new FileReader();
+    r.onload=e=>{ out[i]=e.target.result; if(++done===arr.length) cb(out); };
+    r.onerror=()=>{ if(++done===arr.length) cb(out.filter(Boolean)); };
+    r.readAsDataURL(f);
+  });
+}
+function fmtDur(s){ if(!isFinite(s)||s<=0) return ''; s=Math.round(s); const m=Math.floor(s/60); return m+':'+String(s%60).padStart(2,'0'); }
+function loadVideoPoster(file, cb){
+  const url=URL.createObjectURL(file);
+  const v=document.createElement('video');
+  v.muted=true; v.defaultMuted=true; v.playsInline=true; v.preload='auto';
+  v.setAttribute('muted',''); v.setAttribute('playsinline','');
+  // keep on-page (tiny, near-transparent) so frames actually decode
+  v.style.cssText='position:fixed;left:0;bottom:0;width:2px;height:2px;opacity:0.01;z-index:-1;pointer-events:none;';
+  document.body.appendChild(v);
+
+  let done=false, idx=0, last=null;
+  const times=[0, 0.05, 0.15, 0.4, 0.8];   // first frame first; advance only if blank/undecoded
+  const cleanup=()=>{ try{URL.revokeObjectURL(url);}catch(e){} try{v.pause();}catch(e){} try{v.remove();}catch(e){} };
+  const finish=res=>{ if(done) return; done=true; cleanup(); cb(res); };
+
+  const capture=()=>{
+    const w=v.videoWidth, h=v.videoHeight;
+    if(!w||!h) return null;
+    try{
+      const c=document.createElement('canvas'); c.width=w; c.height=h;
+      const ctx=c.getContext('2d'); ctx.drawImage(v,0,0,w,h);
+      let blank=false;
+      try{ // near-black frame? (e.g. fade-in / not yet painted)
+        const n=Math.min(w,40), m=Math.min(h,40);
+        const s=ctx.getImageData(0,0,n,m).data; let sum=0;
+        for(let i=0;i<s.length;i+=4) sum+=s[i]+s[i+1]+s[i+2];
+        blank=(sum/(s.length/4*3))<4;
+      }catch(_){}
+      return { data:c.toDataURL('image/jpeg',0.92), blank };
+    }catch(e){ return null; }
+  };
+  const afterPaint=fn=>{
+    if(v.requestVideoFrameCallback){ try{ v.requestVideoFrameCallback(()=>fn()); return; }catch(_){} }
+    setTimeout(fn,120);
+  };
+  const onFrame=()=>{
+    if(done) return;
+    const r=capture();
+    if(r){ last=r; if(!r.blank){ finish({poster:r.data, duration:fmtDur(v.duration)}); return; } }
+    idx++;
+    if(idx>=times.length){ finish(last?{poster:last.data, duration:fmtDur(v.duration)}:null); return; }
+    seekNext();
+  };
+  const seekNext=()=>{
+    if(done) return;
+    const d=v.duration; let t=times[idx];
+    if(isFinite(d)&&d>0) t=Math.min(t, Math.max(0,d-0.05));
+    const onSeeked=()=>{ v.removeEventListener('seeked',onSeeked); afterPaint(onFrame); };
+    v.addEventListener('seeked',onSeeked);
+    try{ v.currentTime=t; }catch(e){ afterPaint(onFrame); }
+  };
+
+  v.addEventListener('loadeddata', ()=>{
+    // nudge the decoder to paint a frame, then capture the first cut
+    try{ const p=v.play(); if(p&&p.catch) p.catch(()=>{}); }catch(_){}
+    setTimeout(()=>{ try{v.pause();}catch(_){} }, 50);
+    seekNext();
+  }, {once:true});
+  v.addEventListener('error', ()=>finish(null), {once:true});
+  // hard safety: grab whatever is decoded, else give up
+  setTimeout(()=>{ if(!done){ const r=capture(); finish(r?{poster:r.data, duration:fmtDur(v.duration)}:null); } }, 12000);
+  v.src=url;
+  try{ v.load(); }catch(e){}
+}
+
+/* ============================ editor render ============================ */
+const editor=document.getElementById('editor');
+
+function accountGroup(){
+  const a=state.account;
+  const ava=a.avatar||DEFAULT_AVATAR;
+  return '<div class="group"><div class="glabel">アカウント設定</div>'
+  + '<div class="fld"><label class="f">表示名</label><input type="text" id="ac_name" value="'+esc(a.name)+'"></div>'
+  + '<div class="fld"><label class="f">ユーザー名</label><div class="handle-wrap"><span>@</span><input type="text" id="ac_handle" value="'+esc(a.handle)+'"></div></div>'
+  + '<div class="fld"><label class="f">プロフィール画像</label><div class="avatar-ctrl"><img class="ava" src="'+ava+'"><div class="acts">'
+  +   '<button class="btn btn-ghost" id="ac_ava_btn">画像を選ぶ</button>'
+  +   '<button class="btn btn-ghost" id="ac_ava_clr">既定に戻す</button>'
+  +   '<input type="file" id="ac_ava_file" accept="image/*" hidden></div></div></div>'
+  + '<div class="fld"><label class="f">認証バッジ</label><div class="seg" id="ac_badge">'
+  +   seg('gold','ゴールド',a.badge)+seg('blue','ブルー',a.badge)+seg('none','なし',a.badge)+'</div></div>'
+  + '</div>';
+}
+function displayGroup(){
+  return '<div class="group"><div class="glabel">スマホ表示</div>'
+  + '<div class="fld"><label class="f">テーマ</label><div class="seg" id="dp_theme">'
+  +   seg('light','ライト',state.theme)+seg('dark','ダーク',state.theme)+'</div></div>'
+  + '<label class="chk"><input type="checkbox" id="dp_device" '+(state.device?'checked':'')+'>端末フレーム（iPhone風）を表示</label>'
+  + '<label class="chk" style="margin-top:10px"><input type="checkbox" id="dp_chrome" '+(state.chrome?'checked':'')+'>アプリUI（ステータスバー・上部バー・下部タブ）</label>'
+  + '<label class="chk" style="margin-top:10px"><input type="checkbox" id="dp_stats" '+(state.showStats?'checked':'')+'>エンゲージメント（返信・RP・いいね・表示）</label>'
+  + '<div class="fld" style="margin-top:12px"><label class="f">ホームのタブ（上部）</label><div class="seg" id="dp_hometab">'
+  +   seg('recommend','おすすめ',state.homeTab)+seg('following','フォロー中',state.homeTab)+'</div></div>'
+  + '<div class="fld" style="margin-top:11px"><label class="f">ステータスバーの時刻</label><input type="text" id="dp_time" value="'+esc(state.statusTime)+'"></div>'
+  + '</div>';
+}
+function seg(val,label,cur){ return '<button data-val="'+val+'" class="'+(cur===val?'on':'')+'">'+label+'</button>'; }
+function rangeFld(label,id,val,min,max){
+  return '<div class="fld"><label class="f">'+label+' <span id="'+id+'_v" class="rngval">'+val+'px</span></label>'
+   + '<input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="1" value="'+val+'" class="rng"></div>';
+}
+function sizeGroup(){
+  return '<div class="group"><div class="glabel">文字サイズ（級数）</div>'
+   + rangeFld('アカウント名','sz_name', state.nameSize, 12, 22)
+   + rangeFld('投稿文','sz_text', state.textSize, 12, 26)
+   + '<p class="hint">@ユーザー名・日時はアカウント名と同じサイズで連動します（実際のXと同様）。標準は両方13px。</p>'
+   + '</div>';
+}
+function archiveGroup(){
+  let list;
+  if(!archives.length){
+    list='<p class="hint" style="margin:10px 0 0">まだアーカイブはありません。「現在の投稿案を保存」で追加できます。</p>';
+  }else{
+    list='<div class="arch-list">'+archives.map(a=>{
+      const modeJa=a.mode==='single'?'単体':a.mode==='thread'?'スレッド':'引用';
+      return '<div class="arch-item"><div class="arch-meta"><div class="arch-name">'+esc(a.label)+'</div>'
+        +'<div class="arch-sub">'+modeJa+'・'+a.ts+'</div></div>'
+        +'<div class="arch-btns"><button class="btn btn-ghost arch-load" data-id="'+a.id+'">復元</button>'
+        +'<button class="btn btn-ghost arch-del" data-id="'+a.id+'">削除</button></div></div>';
+    }).join('')+'</div>';
+  }
+  return '<div class="group"><div class="glabel">投稿案アーカイブ</div>'
+   + '<button class="btn btn-red" id="arch_save" style="width:100%">現在の投稿案を保存</button>'
+   + list
+   + '<p class="hint">保存した投稿案をいつでも復元できます。ダウンロードしたHTMLを開いて使うと、ブラウザに保存され次回も残ります（画像が多い場合は容量の都合で残らないことがあります）。</p>'
+   + '</div>';
+}
+
+function statsFields(idx){
+  const p=state.posts[idx];
+  return '<div class="fld"><label class="f">時刻 / 日付（自由入力）</label><input type="text" data-f="time" data-i="'+idx+'" value="'+esc(p.time)+'"></div>'
+  + '<div class="stats-grid">'
+  +  numFld('返信','replies',idx,p.replies)+numFld('リポスト','reposts',idx,p.reposts)
+  +  numFld('いいね','likes',idx,p.likes)+numFld('表示','views',idx,p.views)
+  + '</div>';
+}
+function numFld(label,f,idx,v){
+  return '<div class="fld"><label class="f">'+label+'</label><input type="number" min="0" data-f="'+f+'" data-i="'+idx+'" value="'+v+'"></div>';
+}
+function imageField(idx){
+  const p=state.posts[idx];
+  const thumbs=p.images.map((s,k)=>'<div class="thumb"><img src="'+s+'"><button data-rm="'+idx+'" data-k="'+k+'">×</button></div>').join('');
+  return '<div class="fld"><label class="f">画像（最大4枚）</label>'
+    + '<button class="btn btn-ghost" data-addimg="'+idx+'">画像を追加</button>'
+    + '<input type="file" accept="image/*" multiple hidden data-imgfile="'+idx+'">'
+    + (thumbs?'<div class="thumbs">'+thumbs+'</div>':'')+'</div>';
+}
+function videoField(idx){
+  const p=state.posts[idx];
+  const v=p.video;
+  let body='<button class="btn btn-ghost" data-addvid="'+idx+'">動画を選ぶ</button>'
+    + '<input type="file" accept="video/*" hidden data-vidfile="'+idx+'">';
+  if(v&&(v.poster||v.url)){
+    const thumb = v.poster
+      ? '<img src="'+v.poster+'">'
+      : '<div class="thumb-loading">'+(v.loading?'…':'▶')+'</div>';
+    const status = v.poster ? ''
+      : (v.loading
+        ? '<p class="hint" style="margin:6px 0 0">サムネイルを取得中…（重い動画やiPhoneの.mov等は取得できないことがあります）</p>'
+        : '<p class="hint" style="margin:6px 0 0">自動サムネイルを取得できませんでした。「サムネイル画像を選ぶ」で指定できます。</p>');
+    body+='<div class="thumbs"><div class="thumb">'+thumb+'<button data-rmvid="'+idx+'">×</button></div></div>'
+      + '<div style="margin-top:8px"><button class="btn btn-ghost" data-thumbpick="'+idx+'">サムネイル画像を選ぶ</button>'
+      +   '<input type="file" accept="image/*" hidden data-thumbfile="'+idx+'"></div>'
+      + status
+      + '<div class="row" style="margin-top:8px"><div class="fld" style="margin:0"><label class="f">長さ表示</label><input type="text" data-vdur="'+idx+'" value="'+esc(v.duration||'')+'" placeholder="0:15"></div><div></div></div>';
+  }
+  return '<div class="fld"><label class="f">動画（再生ボタン付きで表示）</label>'+body
+    + '<p class="hint">動画を設定すると、その投稿は画像より動画が優先表示されます。書き出し時はフレームが静止画として描画されます。</p></div>';
+}
+
+function singleEditor(){
+  const idx=0;
+  return '<div class="group"><div class="glabel">投稿内容</div>'
+    + '<div class="fld"><label class="f">投稿文</label><textarea data-f="text" data-i="0" placeholder="投稿文を入力">'+esc(state.posts[0].text)+'</textarea></div>'
+    + imageField(0)
+    + videoField(0)
+    + statsFields(0)
+    + '</div>';
+}
+function threadEditor(){
+  let items=state.posts.map((p,i)=>{
+    const rm = state.posts.length>1?'<div class="trm"><button class="trm-btn" data-del="'+i+'">削除</button></div>':'';
+    return '<div class="thread-item"><div class="tnum">'+(i+1)+(i===0?' / 先頭':'')+'</div>'+rm
+      + '<div class="fld"><label class="f">投稿文</label><textarea data-f="text" data-i="'+i+'" placeholder="'+(i+1)+'件目の投稿文">'+esc(p.text)+'</textarea></div>'
+      + imageField(i)
+      + videoField(i)
+      + statsFields(i)
+      + '</div>';
+  }).join('');
+  return '<div class="group"><div class="glabel">ツリー（連続投稿）</div>'+items
+    + '<button class="btn btn-add" id="th_add">＋ ポストを追加</button></div>';
+}
+function quoteEditor(){
+  const q=state.quoted;
+  const qava=q.avatar||DEFAULT_QAVATAR;
+  const main = '<div class="group"><div class="glabel">メインの投稿</div>'
+    + '<div class="fld"><label class="f">投稿文</label><textarea data-f="text" data-i="0" placeholder="引用コメント">'+esc(state.posts[0].text)+'</textarea></div>'
+    + imageField(0)
+    + videoField(0)
+    + statsFields(0)
+    + '</div>';
+  const qthumb = q.image?'<div class="thumbs"><div class="thumb"><img src="'+q.image+'"><button id="q_img_rm">×</button></div></div>':'';
+  const quoted = '<div class="group"><div class="glabel">引用元の投稿</div>'
+    + '<div class="row"><div class="fld"><label class="f">表示名</label><input type="text" id="q_name" value="'+esc(q.name)+'"></div>'
+    +   '<div class="fld"><label class="f">ユーザー名</label><div class="handle-wrap"><span>@</span><input type="text" id="q_handle" value="'+esc(q.handle)+'"></div></div></div>'
+    + '<div class="fld"><label class="f">アイコン</label><div class="avatar-ctrl"><img class="ava" src="'+qava+'"><div class="acts">'
+    +   '<button class="btn btn-ghost" id="q_ava_btn">画像を選ぶ</button><button class="btn btn-ghost" id="q_ava_clr">既定に戻す</button>'
+    +   '<input type="file" id="q_ava_file" accept="image/*" hidden></div></div></div>'
+    + '<div class="row"><div class="fld"><label class="f">認証バッジ</label><div class="seg" id="q_badge">'
+    +   seg('gold','金',q.badge)+seg('blue','青',q.badge)+seg('none','なし',q.badge)+'</div></div>'
+    +   '<div class="fld"><label class="f">時刻</label><input type="text" id="q_time" value="'+esc(q.time)+'"></div></div>'
+    + '<div class="fld"><label class="f">投稿文</label><textarea id="q_text" placeholder="引用される投稿の本文">'+esc(q.text)+'</textarea></div>'
+    + '<div class="fld"><label class="f">画像（1枚）</label><button class="btn btn-ghost" id="q_img_btn">画像を選ぶ</button>'
+    +   '<input type="file" id="q_img_file" accept="image/*" hidden>'+qthumb+'</div>'
+    + '</div>';
+  return main+quoted;
+}
+
+function renderEditor(){
+  // tabs
+  document.querySelectorAll('#tabs .tab').forEach(t=>t.classList.toggle('on', t.dataset.mode===state.mode));
+  let modeBody;
+  if(state.mode==='single') modeBody=singleEditor();
+  else if(state.mode==='thread') modeBody=threadEditor();
+  else modeBody=quoteEditor();
+  let body=modeBody+accountGroup()+displayGroup()+sizeGroup()+archiveGroup();
+  editor.innerHTML=body;
+  wireEditor();
+  renderPreview();
+}
+
+/* ============================ wiring ============================ */
+function wireEditor(){
+  // account
+  bind('#ac_name','input',e=>{state.account.name=e.target.value;renderPreview();});
+  bind('#ac_handle','input',e=>{state.account.handle=e.target.value.replace(/^@/,'');renderPreview();});
+  bind('#ac_ava_btn','click',()=>document.getElementById('ac_ava_file').click());
+  bind('#ac_ava_clr','click',()=>{state.account.avatar=null;renderEditor();});
+  bind('#ac_ava_file','change',e=>readFiles(e.target.files,a=>{if(a[0]){state.account.avatar=a[0];renderEditor();}}));
+  segWire('#ac_badge',v=>{state.account.badge=v;renderEditor();});
+  // display
+  segWire('#dp_theme',v=>{state.theme=v;renderEditor();});
+  bind('#dp_stats','change',e=>{state.showStats=e.target.checked;renderEditor();});
+  bind('#dp_device','change',e=>{state.device=e.target.checked;renderPreview();});
+  bind('#dp_chrome','change',e=>{state.chrome=e.target.checked;renderPreview();});
+  segWire('#dp_hometab',v=>{state.homeTab=v;renderPreview();});
+  bind('#dp_time','input',e=>{state.statusTime=e.target.value;renderPreview();});
+  bind('#sz_name','input',e=>{state.nameSize=+e.target.value;document.getElementById('sz_name_v').textContent=e.target.value+'px';renderPreview();});
+  bind('#sz_text','input',e=>{state.textSize=+e.target.value;document.getElementById('sz_text_v').textContent=e.target.value+'px';renderPreview();});
+  // archive
+  bind('#arch_save','click',()=>{ saveCurrentDraft(); renderEditor(); });
+  editor.querySelectorAll('.arch-load').forEach(b=>b.addEventListener('click',()=>restoreArchive(b.dataset.id)));
+  editor.querySelectorAll('.arch-del').forEach(b=>b.addEventListener('click',()=>{ deleteArchive(b.dataset.id); renderEditor(); }));
+
+  // generic per-post fields (text/number/time)
+  editor.querySelectorAll('[data-f]').forEach(el=>{
+    el.addEventListener('input',e=>{
+      const i=+el.dataset.i, f=el.dataset.f;
+      let v=el.value; if(el.type==='number') v=v===''?0:+v;
+      state.posts[i][f]=v; renderPreview();
+    });
+  });
+  // image add
+  editor.querySelectorAll('[data-addimg]').forEach(btn=>{
+    const i=+btn.dataset.addimg;
+    btn.addEventListener('click',()=>editor.querySelector('[data-imgfile="'+i+'"]').click());
+  });
+  editor.querySelectorAll('[data-imgfile]').forEach(inp=>{
+    const i=+inp.dataset.imgfile;
+    inp.addEventListener('change',e=>readFiles(e.target.files,arr=>{
+      state.posts[i].images=state.posts[i].images.concat(arr).slice(0,4); renderEditor();
+    }));
+  });
+  editor.querySelectorAll('[data-rm]').forEach(b=>{
+    b.addEventListener('click',()=>{
+      const i=+b.dataset.rm,k=+b.dataset.k;
+      state.posts[i].images.splice(k,1); renderEditor();
+    });
+  });
+  // video
+  editor.querySelectorAll('[data-addvid]').forEach(btn=>{
+    const i=+btn.dataset.addvid;
+    btn.addEventListener('click',()=>editor.querySelector('[data-vidfile="'+i+'"]').click());
+  });
+  editor.querySelectorAll('[data-vidfile]').forEach(inp=>{
+    const i=+inp.dataset.vidfile;
+    inp.addEventListener('change',e=>{
+      const f=e.target.files[0]; if(!f) return;
+      // reflect immediately using an object URL (shows the actual frame)
+      try{ if(state.posts[i].video&&state.posts[i].video.url) URL.revokeObjectURL(state.posts[i].video.url); }catch(_){}
+      state.posts[i].video={ url:URL.createObjectURL(f), poster:null, duration:'', loading:true };
+      renderEditor();
+      // extract a poster frame (used for the exported PNG)
+      loadVideoPoster(f,res=>{
+        const v=state.posts[i].video; if(!v) return;
+        v.loading=false;
+        if(res&&res.poster){ v.poster=res.poster; if(!v.duration) v.duration=res.duration||''; }
+        renderEditor();
+      });
+    });
+  });
+  editor.querySelectorAll('[data-thumbpick]').forEach(b=>{
+    b.addEventListener('click',()=>editor.querySelector('[data-thumbfile="'+b.dataset.thumbpick+'"]').click());
+  });
+  editor.querySelectorAll('[data-thumbfile]').forEach(inp=>{
+    const i=+inp.dataset.thumbfile;
+    inp.addEventListener('change',e=>readFiles(e.target.files,arr=>{
+      const v=state.posts[i].video; if(v&&arr[0]){ v.poster=arr[0]; v.loading=false; renderEditor(); }
+    }));
+  });
+  editor.querySelectorAll('[data-rmvid]').forEach(b=>{
+    b.addEventListener('click',()=>{ state.posts[+b.dataset.rmvid].video=null; renderEditor(); });
+  });
+  editor.querySelectorAll('[data-vdur]').forEach(inp=>{
+    const i=+inp.dataset.vdur;
+    inp.addEventListener('input',e=>{ if(state.posts[i].video){ state.posts[i].video.duration=e.target.value; renderPreview(); }});
+  });
+  // thread
+  bind('#th_add','click',()=>{ if(state.posts.length<10){ state.posts.push(newPost()); renderEditor(); }});
+  editor.querySelectorAll('[data-del]').forEach(b=>{
+    b.addEventListener('click',()=>{ state.posts.splice(+b.dataset.del,1); renderEditor(); });
+  });
+
+  // quote: quoted post fields
+  bind('#q_name','input',e=>{state.quoted.name=e.target.value;renderPreview();});
+  bind('#q_handle','input',e=>{state.quoted.handle=e.target.value.replace(/^@/,'');renderPreview();});
+  bind('#q_time','input',e=>{state.quoted.time=e.target.value;renderPreview();});
+  bind('#q_text','input',e=>{state.quoted.text=e.target.value;renderPreview();});
+  segWire('#q_badge',v=>{state.quoted.badge=v;renderEditor();});
+  bind('#q_ava_btn','click',()=>document.getElementById('q_ava_file').click());
+  bind('#q_ava_clr','click',()=>{state.quoted.avatar=null;renderEditor();});
+  bind('#q_ava_file','change',e=>readFiles(e.target.files,a=>{if(a[0]){state.quoted.avatar=a[0];renderEditor();}}));
+  bind('#q_img_btn','click',()=>document.getElementById('q_img_file').click());
+  bind('#q_img_file','change',e=>readFiles(e.target.files,a=>{if(a[0]){state.quoted.image=a[0];renderEditor();}}));
+  bind('#q_img_rm','click',()=>{state.quoted.image=null;renderEditor();});
+}
+function bind(sel,ev,fn){ const el=document.querySelector(sel); if(el) el.addEventListener(ev,fn); }
+function segWire(sel,fn){
+  const box=document.querySelector(sel); if(!box) return;
+  box.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>fn(b.dataset.val)));
+}
+
+/* tabs */
+document.querySelectorAll('#tabs .tab').forEach(t=>{
+  t.addEventListener('click',()=>{ state.mode=t.dataset.mode; if(!state.posts.length) state.posts=[newPost()]; renderEditor(); });
+});
+
+/* ============================ download ============================ */
+let lastURL=null, lastFname='xpost.png';
+function raf2(){ return new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))); }
+function dataURLtoBlob(durl){
+  const parts=durl.split(','); const mime=(parts[0].match(/:(.*?);/)||[])[1]||'image/png';
+  const bin=atob(parts[1]); const len=bin.length; const u8=new Uint8Array(len);
+  for(let i=0;i<len;i++) u8[i]=bin.charCodeAt(i);
+  return new Blob([u8],{type:mime});
+}
+function triggerDownload(url, filename){
+  try{
+    let href=url, revoke=null;
+    if(url.indexOf('data:')===0){ const b=dataURLtoBlob(url); href=URL.createObjectURL(b); revoke=href; }
+    const a=document.createElement('a'); a.href=href; a.download=filename; a.style.display='none';
+    document.body.appendChild(a); a.click(); a.remove();
+    if(revoke) setTimeout(()=>URL.revokeObjectURL(revoke),5000);
+  }catch(e){ try{ window.open(url,'_blank'); }catch(_){} }
+}
+
+// Render the live node to PNG by drawing it through an <svg><foreignObject>.
+// This uses the browser's own rendering, so the export matches the preview exactly.
+function nodeToPNG(node, w, h, scale){
+  return new Promise((resolve,reject)=>{
+    const clone=node.cloneNode(true);
+    clone.style.transform='none';
+    // replace any live <video> (no poster yet) with a neutral placeholder so the SVG renders
+    clone.querySelectorAll('video').forEach(vd=>{
+      const ph=document.createElement('div'); ph.className='tw-vph';
+      if(vd.parentNode) vd.parentNode.replaceChild(ph, vd);
+    });
+    const cssText=Array.from(document.querySelectorAll('style')).map(s=>s.textContent).join('\n');
+    const serialized=new XMLSerializer().serializeToString(clone);
+    const wrapper='<div xmlns="http://www.w3.org/1999/xhtml" style="width:'+w+'px;height:'+h+'px;background:transparent;">'
+      +'<style>'+cssText+'</style>'+serialized+'</div>';
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">'
+      +'<foreignObject x="0" y="0" width="'+w+'" height="'+h+'">'+wrapper+'</foreignObject></svg>';
+    let dataUri;
+    try{ dataUri='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svg))); }
+    catch(e){ reject(e); return; }
+    const img=new Image();
+    img.onload=()=>{
+      try{
+        const c=document.createElement('canvas'); c.width=Math.round(w*scale); c.height=Math.round(h*scale);
+        const ctx=c.getContext('2d'); ctx.setTransform(scale,0,0,scale,0,0);
+        ctx.drawImage(img,0,0);
+        resolve(c.toDataURL('image/png'));
+      }catch(err){ reject(err); }
+    };
+    img.onerror=()=>reject(new Error('svg image failed to load'));
+    img.src=dataUri;
+  });
+}
+
+let currentObjURL=null;
+function showSaveModal(url, fname, imgUrl){
+  lastURL=url; lastFname=fname;
+  // build a blob object URL so the real <a download> / new-tab link work without scripted downloads
+  let blobURL=url;
+  try{
+    const blob = url.indexOf('data:')===0 ? dataURLtoBlob(url) : null;
+    if(blob){ if(currentObjURL) URL.revokeObjectURL(currentObjURL); blobURL=URL.createObjectURL(blob); currentObjURL=blobURL; }
+  }catch(e){ console.warn(e); }
+  const save=document.getElementById('dlSave'); save.href=blobURL; save.setAttribute('download', fname);
+  const open=document.getElementById('dlOpen'); open.href=blobURL;
+  const img=document.getElementById('dlImg'), msg=document.getElementById('dlMsg'), copy=document.getElementById('dlCopy');
+  if(imgUrl){ img.src=imgUrl; img.style.display=''; msg.style.display='none'; copy.style.display=''; }
+  else { img.removeAttribute('src'); img.style.display='none'; msg.style.display='block'; copy.style.display='none'; }
+  document.getElementById('dlModal').classList.add('on');
+}
+document.getElementById('dlBtn').addEventListener('click',async function(){
+  const btn=this; const card=document.getElementById('capture');
+  const prevT=card.style.transform; const prevLabel=btn.textContent;
+  btn.disabled=true; btn.textContent='書き出し中…';
+  card.style.transform='none';
+  card.classList.add('exporting');
+  await raf2();
+  const w=card.offsetWidth, h=card.offsetHeight;
+  let url=null;
+  // primary: faithful SVG rendering
+  try{ url=await nodeToPNG(card, w, h, 3); }
+  catch(e){ console.warn('foreignObject export failed, trying html2canvas', e); }
+  // fallback: html2canvas (no forced window dims — let it measure the element)
+  if(!url && typeof html2canvas==='function'){
+    try{
+      const canvas=await html2canvas(card,{scale:3, useCORS:true, backgroundColor:null, logging:false});
+      url=canvas.toDataURL('image/png');
+    }catch(e){ console.error(e); }
+  }
+  card.classList.remove('exporting');
+  card.style.transform=prevT; fitPreview();
+
+  if(!url){ alert('画像の書き出しに失敗しました。お手数ですが、もう一度お試しください。'); btn.disabled=false; btn.textContent=prevLabel; return; }
+  const fname='xpost_McDonaldsJapan_'+state.mode+'.png';
+  showSaveModal(url, fname, url);
+  btn.disabled=false; btn.textContent=prevLabel;
+});
+document.getElementById('dlCopy').addEventListener('click',async function(){
+  try{
+    if(!currentObjURL) throw new Error('no image');
+    const blob=await (await fetch(currentObjURL)).blob();
+    await navigator.clipboard.write([new ClipboardItem({[blob.type||'image/png']:blob})]);
+    this.textContent='コピーしました'; setTimeout(()=>this.textContent='画像をコピー',1600);
+  }catch(e){ console.error(e); this.textContent='コピー不可（右クリック保存を）'; setTimeout(()=>this.textContent='画像をコピー',2200); }
+});
+document.getElementById('dlClose').addEventListener('click',()=>document.getElementById('dlModal').classList.remove('on'));
+document.getElementById('dlModal').addEventListener('click',e=>{ if(e.target.id==='dlModal') e.currentTarget.classList.remove('on'); });
+
+/* ============================ PPTX export (post text stays editable) ============================ */
+const EMU=9525; // per CSS px at 96dpi
+function rgbToHex(c){
+  const m=(c||'').match(/(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+  if(!m) return '0F1419';
+  return [1,2,3].map(i=>(+m[i]).toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+function xmlEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+const PPTX_CT='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
++'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
++'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
++'<Default Extension="xml" ContentType="application/xml"/>'
++'<Default Extension="png" ContentType="image/png"/>'
++'<Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/>'
++'<Override PartName="/ppt/slideMasters/slideMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/>'
++'<Override PartName="/ppt/slideLayouts/slideLayout1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/>'
++'<Override PartName="/ppt/slides/slide1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>'
++'<Override PartName="/ppt/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>'
++'</Types>';
+const PPTX_ROOTRELS='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
++'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
++'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="ppt/presentation.xml"/>'
++'</Relationships>';
+const PPTX_PRESRELS='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
++'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
++'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="slideMasters/slideMaster1.xml"/>'
++'<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide1.xml"/>'
++'<Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="theme/theme1.xml"/>'
++'</Relationships>';
+const PPTX_MASTER='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
++'<p:sldMaster xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">'
++'<p:cSld><p:bg><p:bgRef idx="1001"><a:schemeClr val="bg1"/></p:bgRef></p:bg>'
++'<p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr>'
++'<p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr></p:spTree></p:cSld>'
++'<p:clrMap bg1="lt1" tx1="dk1" bg2="lt2" tx2="dk2" accent1="accent1" accent2="accent2" accent3="accent3" accent4="accent4" accent5="accent5" accent6="accent6" hlink="hlink" folHlink="folHlink"/>'
++'<p:sldLayoutIdLst><p:sldLayoutId id="2147483649" r:id="rId1"/></p:sldLayoutIdLst>'
++'<p:txStyles><p:titleStyle/><p:bodyStyle/><p:otherStyle/></p:txStyles></p:sldMaster>';
+const PPTX_MASTERRELS='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
++'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
++'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>'
++'<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/theme" Target="../theme/theme1.xml"/>'
++'</Relationships>';
+const PPTX_LAYOUT='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
++'<p:sldLayout xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" type="blank" preserve="1">'
++'<p:cSld name="Blank"><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr>'
++'<p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr></p:spTree></p:cSld>'
++'<p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sldLayout>';
+const PPTX_LAYOUTRELS='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
++'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
++'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="../slideMasters/slideMaster1.xml"/>'
++'</Relationships>';
+const PPTX_SLIDERELS='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
++'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
++'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/image1.png"/>'
++'<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>'
++'</Relationships>';
+const PPTX_THEME='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
++'<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="Office Theme"><a:themeElements>'
++'<a:clrScheme name="Office"><a:dk1><a:sysClr val="windowText" lastClr="000000"/></a:dk1><a:lt1><a:sysClr val="window" lastClr="FFFFFF"/></a:lt1>'
++'<a:dk2><a:srgbClr val="44546A"/></a:dk2><a:lt2><a:srgbClr val="E7E6E6"/></a:lt2>'
++'<a:accent1><a:srgbClr val="4472C4"/></a:accent1><a:accent2><a:srgbClr val="ED7D31"/></a:accent2><a:accent3><a:srgbClr val="A5A5A5"/></a:accent3>'
++'<a:accent4><a:srgbClr val="FFC000"/></a:accent4><a:accent5><a:srgbClr val="5B9BD5"/></a:accent5><a:accent6><a:srgbClr val="70AD47"/></a:accent6>'
++'<a:hlink><a:srgbClr val="0563C1"/></a:hlink><a:folHlink><a:srgbClr val="954F72"/></a:folHlink></a:clrScheme>'
++'<a:fontScheme name="Office"><a:majorFont><a:latin typeface="Calibri Light"/><a:ea typeface=""/><a:cs typeface=""/></a:majorFont>'
++'<a:minorFont><a:latin typeface="Calibri"/><a:ea typeface=""/><a:cs typeface=""/></a:minorFont></a:fontScheme>'
++'<a:fmtScheme name="Office"><a:fillStyleLst>'
++'<a:solidFill><a:schemeClr val="phClr"/></a:solidFill>'
++'<a:gradFill rotWithShape="1"><a:gsLst><a:gs pos="0"><a:schemeClr val="phClr"><a:lumMod val="110000"/><a:satMod val="105000"/><a:tint val="67000"/></a:schemeClr></a:gs><a:gs pos="50000"><a:schemeClr val="phClr"><a:lumMod val="105000"/><a:satMod val="103000"/><a:tint val="73000"/></a:schemeClr></a:gs><a:gs pos="100000"><a:schemeClr val="phClr"><a:lumMod val="105000"/><a:satMod val="109000"/><a:tint val="81000"/></a:schemeClr></a:gs></a:gsLst><a:lin ang="5400000" scaled="0"/></a:gradFill>'
++'<a:gradFill rotWithShape="1"><a:gsLst><a:gs pos="0"><a:schemeClr val="phClr"><a:satMod val="103000"/><a:lumMod val="102000"/><a:tint val="94000"/></a:schemeClr></a:gs><a:gs pos="50000"><a:schemeClr val="phClr"><a:satMod val="110000"/><a:lumMod val="100000"/><a:shade val="100000"/></a:schemeClr></a:gs><a:gs pos="100000"><a:schemeClr val="phClr"><a:lumMod val="99000"/><a:satMod val="120000"/><a:shade val="78000"/></a:schemeClr></a:gs></a:gsLst><a:lin ang="5400000" scaled="0"/></a:gradFill>'
++'</a:fillStyleLst><a:lnStyleLst>'
++'<a:ln w="6350" cap="flat" cmpd="sng" algn="ctr"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:prstDash val="solid"/><a:miter lim="800000"/></a:ln>'
++'<a:ln w="12700" cap="flat" cmpd="sng" algn="ctr"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:prstDash val="solid"/><a:miter lim="800000"/></a:ln>'
++'<a:ln w="19050" cap="flat" cmpd="sng" algn="ctr"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:prstDash val="solid"/><a:miter lim="800000"/></a:ln>'
++'</a:lnStyleLst><a:effectStyleLst><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle>'
++'<a:effectStyle><a:effectLst><a:outerShdw blurRad="57150" dist="19050" dir="5400000" rotWithShape="0"><a:srgbClr val="000000"><a:alpha val="63000"/></a:srgbClr></a:outerShdw></a:effectLst></a:effectStyle></a:effectStyleLst>'
++'<a:bgFillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill>'
++'<a:solidFill><a:schemeClr val="phClr"><a:tint val="95000"/><a:satMod val="170000"/></a:schemeClr></a:solidFill>'
++'<a:gradFill rotWithShape="1"><a:gsLst><a:gs pos="0"><a:schemeClr val="phClr"><a:tint val="93000"/><a:satMod val="150000"/><a:shade val="98000"/><a:lumMod val="102000"/></a:schemeClr></a:gs><a:gs pos="50000"><a:schemeClr val="phClr"><a:tint val="98000"/><a:satMod val="130000"/><a:shade val="90000"/><a:lumMod val="103000"/></a:schemeClr></a:gs><a:gs pos="100000"><a:schemeClr val="phClr"><a:shade val="63000"/><a:satMod val="120000"/></a:schemeClr></a:gs></a:gsLst><a:lin ang="5400000" scaled="0"/></a:gradFill>'
++'</a:bgFillStyleLst></a:fmtScheme></a:themeElements><a:objectDefaults/><a:extraClrSchemeLst/></a:theme>';
+
+function pptParaXml(line, hex, szHnd, lhPct, face){
+  const parts=String(line).split(/((?:https?:\/\/[^\s]+)|(?:[#＃][^\s#＃]+)|(?:[@＠][A-Za-z0-9_]+))/g).filter(p=>p!=='' && p!=null);
+  let runs='';
+  if(!parts.length){
+    runs='<a:endParaRPr lang="ja-JP" sz="'+szHnd+'"/>';
+  }else{
+    parts.forEach(p=>{
+      const isEnt=/^(https?:\/\/|[#＃]|[@＠])/.test(p);
+      const col=isEnt?'1D9BF0':hex;
+      runs+='<a:r><a:rPr lang="ja-JP" sz="'+szHnd+'" dirty="0"><a:solidFill><a:srgbClr val="'+col+'"/></a:solidFill>'
+        +'<a:latin typeface="'+face+'"/><a:ea typeface="'+face+'"/><a:cs typeface="'+face+'"/></a:rPr><a:t>'+xmlEsc(p)+'</a:t></a:r>';
+    });
+  }
+  return '<a:p><a:pPr><a:lnSpc><a:spcPct val="'+lhPct+'"/></a:lnSpc></a:pPr>'+runs+'</a:p>';
+}
+function pptSpXml(id, b, face){
+  const x=Math.round(b.x*EMU), y=Math.round(b.y*EMU), cx=Math.round(b.w*EMU), cy=Math.round(b.h*EMU);
+  const szHnd=Math.max(100, Math.round(b.fpx*0.75*100));
+  const lhPct=Math.round((b.lh||1.3)*100000);
+  const paras=String(b.text).split('\n').map(l=>pptParaXml(l,b.hex,szHnd,lhPct,face)).join('');
+  return '<p:sp><p:nvSpPr><p:cNvPr id="'+id+'" name="txt'+id+'"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>'
+    +'<p:spPr><a:xfrm><a:off x="'+x+'" y="'+y+'"/><a:ext cx="'+cx+'" cy="'+cy+'"/></a:xfrm>'
+    +'<a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr>'
+    +'<p:txBody><a:bodyPr wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" anchor="t"><a:noAutofit/></a:bodyPr><a:lstStyle/>'+paras+'</p:txBody></p:sp>';
+}
+function elementToPNG(el){
+  return new Promise((resolve,reject)=>{
+    const r=el.getBoundingClientRect();
+    const w=Math.max(1,Math.round(r.width)), h=Math.max(1,Math.round(r.height));
+    const clone=el.cloneNode(true);
+    clone.style.margin='0';
+    clone.querySelectorAll('video').forEach(v=>{ const ph=document.createElement('div'); ph.className='tw-vph'; if(v.parentNode) v.parentNode.replaceChild(ph,v); });
+    const cssText=Array.from(document.querySelectorAll('style')).map(s=>s.textContent).join('\n');
+    const themeCls='tw'+(state.theme==='dark'?' dark':'');
+    const serialized=new XMLSerializer().serializeToString(clone);
+    const wrap='<div xmlns="http://www.w3.org/1999/xhtml" class="'+themeCls+'" style="width:'+w+'px;background:transparent;--name-size:'+state.nameSize+'px;--text-size:'+state.textSize+'px;">'
+      +'<style>'+cssText+'</style>'+serialized+'</div>';
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'"><foreignObject x="0" y="0" width="'+w+'" height="'+h+'">'+wrap+'</foreignObject></svg>';
+    let dataUri; try{ dataUri='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svg))); }catch(e){ reject(e); return; }
+    const img=new Image();
+    img.onload=()=>{ try{ const c=document.createElement('canvas'); c.width=w*3; c.height=h*3; const ctx=c.getContext('2d'); ctx.setTransform(3,0,0,3,0,0); ctx.drawImage(img,0,0); resolve(c.toDataURL('image/png')); }catch(err){ reject(err); } };
+    img.onerror=()=>reject(new Error('element svg failed'));
+    img.src=dataUri;
+  });
+}
+function pptBgPicXml(id, W, H, rId){
+  return '<p:pic><p:nvPicPr><p:cNvPr id="'+id+'" name="背景"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr>'
+    +'<p:blipFill><a:blip r:embed="'+rId+'"/><a:stretch><a:fillRect/></a:stretch></p:blipFill>'
+    +'<p:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+W+'" cy="'+H+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>';
+}
+function pptGroupPicXml(gid, pid, o, rId){
+  const x=Math.round(o.x*EMU), y=Math.round(o.y*EMU), cx=Math.round(o.w*EMU), cy=Math.round(o.h*EMU);
+  return '<p:grpSp><p:nvGrpSpPr><p:cNvPr id="'+gid+'" name="'+o.name+'"/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr>'
+    +'<p:grpSpPr><a:xfrm><a:off x="'+x+'" y="'+y+'"/><a:ext cx="'+cx+'" cy="'+cy+'"/><a:chOff x="0" y="0"/><a:chExt cx="'+cx+'" cy="'+cy+'"/></a:xfrm></p:grpSpPr>'
+    +'<p:pic><p:nvPicPr><p:cNvPr id="'+pid+'" name="'+o.name+'_img"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr>'
+    +'<p:blipFill><a:blip r:embed="'+rId+'"/><a:stretch><a:fillRect/></a:stretch></p:blipFill>'
+    +'<p:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+cx+'" cy="'+cy+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic></p:grpSp>';
+}
+async function buildPptx(bgPng, wPx, hPx, boxes, overlays, face){
+  const W=Math.round(wPx*EMU), H=Math.round(hPx*EMU);
+  const nOv=overlays.length;
+  const presentation='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<p:presentation xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" saveSubsetFonts="1">'
+    +'<p:sldMasterIdLst><p:sldMasterId id="2147483648" r:id="rId1"/></p:sldMasterIdLst>'
+    +'<p:sldIdLst><p:sldId id="256" r:id="rId2"/></p:sldIdLst>'
+    +'<p:sldSz cx="'+W+'" cy="'+H+'"/><p:notesSz cx="6858000" cy="9144000"/></p:presentation>';
+  // slide relationships: rId1 bg, rId(2..1+nOv) overlays, rId(2+nOv) layout
+  const layoutRId='rId'+(2+nOv);
+  const REL='http://schemas.openxmlformats.org/officeDocument/2006/relationships/';
+  let rels='<Relationship Id="rId1" Type="'+REL+'image" Target="../media/image1.png"/>';
+  overlays.forEach((o,i)=>{ rels+='<Relationship Id="rId'+(2+i)+'" Type="'+REL+'image" Target="../media/image'+(2+i)+'.png"/>'; });
+  rels+='<Relationship Id="'+layoutRId+'" Type="'+REL+'slideLayout" Target="../slideLayouts/slideLayout1.xml"/>';
+  const sliderels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+rels+'</Relationships>';
+  // spTree: bg, overlay groups, then text boxes
+  let body=pptBgPicXml(2, W, H, 'rId1');
+  let id=3;
+  overlays.forEach((o,i)=>{ body+=pptGroupPicXml(id, id+1, o, 'rId'+(2+i)); id+=2; });
+  boxes.forEach(b=>{ body+=pptSpXml(id, b, face); id++; });
+  const slide='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">'
+    +'<p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr>'
+    +'<p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+W+'" cy="'+H+'"/><a:chOff x="0" y="0"/><a:chExt cx="'+W+'" cy="'+H+'"/></a:xfrm></p:grpSpPr>'
+    + body
+    +'</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>';
+  const zip=new JSZip();
+  zip.file('[Content_Types].xml', PPTX_CT);
+  zip.folder('_rels').file('.rels', PPTX_ROOTRELS);
+  const ppt=zip.folder('ppt');
+  ppt.file('presentation.xml', presentation);
+  ppt.folder('_rels').file('presentation.xml.rels', PPTX_PRESRELS);
+  ppt.folder('theme').file('theme1.xml', PPTX_THEME);
+  ppt.folder('slideMasters').file('slideMaster1.xml', PPTX_MASTER);
+  ppt.folder('slideMasters').folder('_rels').file('slideMaster1.xml.rels', PPTX_MASTERRELS);
+  ppt.folder('slideLayouts').file('slideLayout1.xml', PPTX_LAYOUT);
+  ppt.folder('slideLayouts').folder('_rels').file('slideLayout1.xml.rels', PPTX_LAYOUTRELS);
+  ppt.folder('slides').file('slide1.xml', slide);
+  ppt.folder('slides').folder('_rels').file('slide1.xml.rels', sliderels);
+  ppt.folder('media').file('image1.png', bgPng.split(',')[1], {base64:true});
+  overlays.forEach((o,i)=>{ ppt.folder('media').file('image'+(2+i)+'.png', o.png.split(',')[1], {base64:true}); });
+  const out=await zip.generateAsync({type:'base64'});
+  return 'data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,'+out;
+}
+
+document.getElementById('pptBtn').addEventListener('click',async function(){
+  const btn=this, card=document.getElementById('capture');
+  if(typeof JSZip==='undefined'){ btn.textContent='ライブラリ読込失敗'; setTimeout(()=>btn.textContent='PPTX（投稿文編集可）',2500); return; }
+  const prevT=card.style.transform, prevLabel=btn.textContent;
+  btn.disabled=true; btn.textContent='書き出し中…';
+  card.style.transform='none'; await raf2();
+  const cardRect=card.getBoundingClientRect();
+  const w=card.offsetWidth, h=card.offsetHeight;
+  // editable text boxes
+  const boxes=[];
+  card.querySelectorAll('.tw-text').forEach(el=>{
+    const t=el.textContent; if(!t||!t.trim()) return;
+    const r=el.getBoundingClientRect(); const cs=getComputedStyle(el);
+    const fpx=parseFloat(cs.fontSize)||14;
+    boxes.push({ x:r.left-cardRect.left, y:r.top-cardRect.top+4, w:r.width, h:r.height,
+      text:t, fpx:fpx, lh:1.15, hex:rgbToHex(cs.color) });
+  });
+  // movable overlay groups: post media (image/video) + engagement rows
+  const overlays=[]; let overlaysOk=true;
+  try{
+    let mi=0;
+    for(const el of card.querySelectorAll('.tw-media')){
+      const r=el.getBoundingClientRect();
+      const png=await elementToPNG(el);
+      overlays.push({ name:'投稿メディア'+(++mi), png, x:r.left-cardRect.left, y:r.top-cardRect.top, w:r.width, h:r.height });
+    }
+    let ai=0;
+    for(const el of card.querySelectorAll('.tw-actions')){
+      const r=el.getBoundingClientRect();
+      const png=await elementToPNG(el);
+      overlays.push({ name:'エンゲージメント'+(++ai), png, x:r.left-cardRect.left, y:r.top-cardRect.top, w:r.width, h:r.height });
+    }
+  }catch(e){ console.warn('overlay capture failed; baking into background', e); overlaysOk=false; overlays.length=0; }
+  // background layer (hide text, and media/engagement if they became overlays)
+  const bgClass = overlaysOk ? 'pptx-bg' : 'hide-text';
+  card.classList.add(bgClass); card.classList.add('exporting'); await raf2();
+  let png=null;
+  try{ png=await nodeToPNG(card, w, h, 3); }catch(e){ console.warn(e); }
+  if(!png && typeof html2canvas==='function'){
+    try{ png=(await html2canvas(card,{scale:3,backgroundColor:null,useCORS:true,logging:false})).toDataURL('image/png'); }catch(e){ console.error(e); }
+  }
+  card.classList.remove(bgClass); card.classList.remove('exporting'); card.style.transform=prevT; fitPreview();
+  if(!png){ btn.textContent='画像生成に失敗'; setTimeout(()=>btn.textContent=prevLabel,2500); btn.disabled=false; return; }
+  try{
+    const dataUrl=await buildPptx(png, w, h, boxes, overlays, 'Hiragino Kaku Gothic ProN');
+    showSaveModal(dataUrl, 'xpost_McDonaldsJapan_'+state.mode+'.pptx', null);
+    btn.textContent='PPTXを生成しました';
+    setTimeout(()=>btn.textContent=prevLabel,2000);
+  }catch(err){
+    console.error(err); btn.textContent='書き出しに失敗';
+    setTimeout(()=>btn.textContent=prevLabel,2500);
+  }
+  btn.disabled=false;
+});
+
+/* tap tabs directly in the preview */
+document.getElementById('capture').addEventListener('click',function(e){
+  const t=e.target.closest('.x-tab');
+  if(t){ state.homeTab=t.dataset.tab; renderPreview(); }
+});
+
+/* init */
+loadArchives();
+renderEditor();
+</script>
