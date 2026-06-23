@@ -130,9 +130,9 @@
   .x-header .h-set svg{width:23px;height:23px;fill:var(--text);display:block;}
   /* おすすめ / フォロー中 tabs */
   .x-tabs{display:flex;border-bottom:1px solid var(--border);}
-  .x-tab{flex:1;text-align:center;position:relative;padding:14px 0 15px;font-size:13px;font-weight:600;color:var(--muted);}
+  .x-tab{flex:1;text-align:center;position:relative;padding:14px 0 9px;font-size:13px;font-weight:600;color:var(--muted);}
   .x-tab.on{color:var(--text);font-weight:800;}
-  .x-tab.on::after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:56px;height:4px;border-radius:4px;background:var(--blue);}
+  .x-tab.on::after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:56px;height:3px;border-radius:4px;background:var(--blue);}
   .feed{padding:14px 12px 88px;}
   /* compose FAB */
   .fab{position:absolute;right:16px;bottom:94px;width:54px;height:54px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.28);z-index:5;}
@@ -173,7 +173,7 @@
   #capture.hide-text .tw-text{visibility:hidden;}
   #capture.exporting .bezel{box-shadow:inset 0 0 0 2px #2b2b2e;}
   #capture.exporting.noframe .screen{box-shadow:none;}
-  #capture.pptx-bg .tw-text,#capture.pptx-bg .tw-media,#capture.pptx-bg .tw-actions{visibility:hidden;}
+  #capture.pptx-bg .tw-text,#capture.pptx-bg .tw-media,#capture.pptx-bg .tw-actions,#capture.pptx-bg .tw-quote .qtext{visibility:hidden;}
   .arch-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
   .arch-item{display:flex;align-items:center;gap:8px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff;}
   .arch-meta{min-width:0;flex:1;}
@@ -1183,15 +1183,18 @@ document.getElementById('pptBtn').addEventListener('click',async function(){
   card.style.transform='none'; await raf2();
   const cardRect=card.getBoundingClientRect();
   const w=card.offsetWidth, h=card.offsetHeight;
-  // editable text boxes
+  // editable text boxes (post bodies for single/thread, plus quoted-tweet text)
   const boxes=[];
-  card.querySelectorAll('.tw-text').forEach(el=>{
+  const collectText=(el, extraTop)=>{
     const t=el.textContent; if(!t||!t.trim()) return;
     const r=el.getBoundingClientRect(); const cs=getComputedStyle(el);
     const fpx=parseFloat(cs.fontSize)||14;
-    boxes.push({ x:r.left-cardRect.left, y:r.top-cardRect.top+4, w:r.width, h:r.height,
+    const pl=parseFloat(cs.paddingLeft)||0, pt=parseFloat(cs.paddingTop)||0, pr=parseFloat(cs.paddingRight)||0;
+    boxes.push({ x:r.left-cardRect.left+pl, y:r.top-cardRect.top+pt+extraTop, w:Math.max(10,r.width-pl-pr), h:r.height,
       text:t, fpx:fpx, lh:1.15, hex:rgbToHex(cs.color) });
-  });
+  };
+  card.querySelectorAll('.tw-text').forEach(el=>collectText(el, 4));
+  card.querySelectorAll('.tw-quote .qtext').forEach(el=>collectText(el, 0));
   // movable overlay groups: post media (image/video) + engagement rows
   const overlays=[]; let overlaysOk=true;
   try{
