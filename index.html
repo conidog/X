@@ -174,6 +174,7 @@
   #capture.exporting .bezel{box-shadow:inset 0 0 0 2px #2b2b2e;}
   #capture.exporting.noframe .screen{box-shadow:none;}
   #capture.pptx-bg .tw-text,#capture.pptx-bg .tw-media,#capture.pptx-bg .tw-actions,#capture.pptx-bg .tw-quote .qtext{visibility:hidden;}
+  #capture.pptx-blocks .tw-post{visibility:hidden;}
   .arch-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
   .arch-item{display:flex;align-items:center;gap:8px;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:8px 10px;background:#fff;}
   .arch-meta{min-width:0;flex:1;}
@@ -1097,12 +1098,13 @@ function pptSpXml(id, b, face){
     +'<a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr>'
     +'<p:txBody><a:bodyPr wrap="square" lIns="0" tIns="0" rIns="0" bIns="0" anchor="t"><a:noAutofit/></a:bodyPr><a:lstStyle/>'+paras+'</p:txBody></p:sp>';
 }
-function elementToPNG(el){
+function elementToPNG(el, hideSel){
   return new Promise((resolve,reject)=>{
     const r=el.getBoundingClientRect();
     const w=Math.max(1,Math.round(r.width)), h=Math.max(1,Math.round(r.height));
     const clone=el.cloneNode(true);
     clone.style.margin='0';
+    if(hideSel&&hideSel.length){ clone.querySelectorAll(hideSel.join(',')).forEach(n=>{ n.style.visibility='hidden'; }); }
     clone.querySelectorAll('video').forEach(v=>{ const ph=document.createElement('div'); ph.className='tw-vph'; if(v.parentNode) v.parentNode.replaceChild(ph,v); });
     const cssText=Array.from(document.querySelectorAll('style')).map(s=>s.textContent).join('\n');
     const themeCls='tw'+(state.theme==='dark'?' dark':'');
@@ -1130,7 +1132,15 @@ function pptGroupPicXml(gid, pid, o, rId){
     +'<p:blipFill><a:blip r:embed="'+rId+'"/><a:stretch><a:fillRect/></a:stretch></p:blipFill>'
     +'<p:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+cx+'" cy="'+cy+'"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic></p:grpSp>';
 }
-async function buildPptx(bgPng, wPx, hPx, boxes, overlays, face){
+function pptLineXml(id, ln){
+  const x=Math.round(ln.cx*EMU), y=Math.round(ln.y*EMU), cy=Math.round(ln.len*EMU);
+  const wEmu=Math.max(6350, Math.round(ln.w*EMU));
+  return '<p:cxnSp><p:nvCxnSpPr><p:cNvPr id="'+id+'" name="'+ln.name+'"/><p:cNvCxnSpPr/><p:nvPr/></p:nvCxnSpPr>'
+    +'<p:spPr><a:xfrm><a:off x="'+x+'" y="'+y+'"/><a:ext cx="0" cy="'+cy+'"/></a:xfrm>'
+    +'<a:prstGeom prst="line"><a:avLst/></a:prstGeom>'
+    +'<a:ln w="'+wEmu+'" cap="rnd"><a:solidFill><a:srgbClr val="'+ln.hex+'"/></a:solidFill></a:ln></p:spPr></p:cxnSp>';
+}
+async function buildPptx(bgPng, wPx, hPx, boxes, overlays, lines, face){
   const W=Math.round(wPx*EMU), H=Math.round(hPx*EMU);
   const nOv=overlays.length;
   const presentation='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -1148,6 +1158,7 @@ async function buildPptx(bgPng, wPx, hPx, boxes, overlays, face){
   // spTree: bg, overlay groups, then text boxes
   let body=pptBgPicXml(2, W, H, 'rId1');
   let id=3;
+  (lines||[]).forEach(ln=>{ body+=pptLineXml(id, ln); id++; });
   overlays.forEach((o,i)=>{ body+=pptGroupPicXml(id, id+1, o, 'rId'+(2+i)); id+=2; });
   boxes.forEach(b=>{ body+=pptSpXml(id, b, face); id++; });
   const slide='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -1195,24 +1206,46 @@ document.getElementById('pptBtn').addEventListener('click',async function(){
   };
   card.querySelectorAll('.tw-text').forEach(el=>collectText(el, 4));
   card.querySelectorAll('.tw-quote .qtext').forEach(el=>collectText(el, 0));
-  // movable overlay groups: post media (image/video) + engagement rows
-  const overlays=[]; let overlaysOk=true;
+  // overlay groups — all modes are block-based now
+  const overlays=[]; const lines=[]; let overlaysOk=true;
   try{
-    let mi=0;
-    for(const el of card.querySelectorAll('.tw-media')){
-      const r=el.getBoundingClientRect();
-      const png=await elementToPNG(el);
-      overlays.push({ name:'投稿メディア'+(++mi), png, x:r.left-cardRect.left, y:r.top-cardRect.top, w:r.width, h:r.height });
+    let bi=0;
+    for(const post of card.querySelectorAll('.tw-post')){
+      bi++;
+      const qc=post.querySelector('.tw-quote');
+      const r=post.getBoundingClientRect();
+      const hide=['.tw-text','.qtext','.tw-actions','.tw-line'];
+      if(qc) hide.push('.tw-quote');
+      if(state.mode==='single') hide.push('.tw-media');   // single: media becomes its own group
+      overlays.push({ name:'投稿ブロック'+bi, png:await elementToPNG(post, hide), x:r.left-cardRect.left, y:r.top-cardRect.top, w:r.width, h:r.height });
+      if(qc){
+        const qr=qc.getBoundingClientRect();
+        overlays.push({ name:'引用ブロック'+bi, png:await elementToPNG(qc, ['.qtext']), x:qr.left-cardRect.left, y:qr.top-cardRect.top, w:qr.width, h:qr.height });
+      }
     }
+    // single keeps media as a separate movable group (thread/quote bake media into the block)
+    if(state.mode==='single'){
+      let mi=0;
+      for(const el of card.querySelectorAll('.tw-media')){
+        const r=el.getBoundingClientRect();
+        overlays.push({ name:'投稿メディア'+(++mi), png:await elementToPNG(el), x:r.left-cardRect.left, y:r.top-cardRect.top, w:r.width, h:r.height });
+      }
+    }
+    // engagement rows as their own movable groups (all modes)
     let ai=0;
     for(const el of card.querySelectorAll('.tw-actions')){
       const r=el.getBoundingClientRect();
-      const png=await elementToPNG(el);
-      overlays.push({ name:'エンゲージメント'+(++ai), png, x:r.left-cardRect.left, y:r.top-cardRect.top, w:r.width, h:r.height });
+      overlays.push({ name:'エンゲージメント'+(++ai), png:await elementToPNG(el), x:r.left-cardRect.left, y:r.top-cardRect.top, w:r.width, h:r.height });
     }
-  }catch(e){ console.warn('overlay capture failed; baking into background', e); overlaysOk=false; overlays.length=0; }
-  // background layer (hide text, and media/engagement if they became overlays)
-  const bgClass = overlaysOk ? 'pptx-bg' : 'hide-text';
+    // thread connector lines as real, stretchable PPT line shapes
+    let li=0;
+    for(const el of card.querySelectorAll('.tw-line')){
+      const r=el.getBoundingClientRect(); if(r.height<2) continue;
+      lines.push({ name:'ツリー線'+(++li), cx:(r.left-cardRect.left)+r.width/2, y:r.top-cardRect.top, len:r.height, w:r.width, hex:rgbToHex(getComputedStyle(el).backgroundColor) });
+    }
+  }catch(e){ console.warn('overlay capture failed; baking into background', e); overlaysOk=false; overlays.length=0; lines.length=0; }
+  // background layer
+  const bgClass = overlaysOk ? 'pptx-blocks' : 'hide-text';
   card.classList.add(bgClass); card.classList.add('exporting'); await raf2();
   let png=null;
   try{ png=await nodeToPNG(card, w, h, 3); }catch(e){ console.warn(e); }
@@ -1222,7 +1255,7 @@ document.getElementById('pptBtn').addEventListener('click',async function(){
   card.classList.remove(bgClass); card.classList.remove('exporting'); card.style.transform=prevT; fitPreview();
   if(!png){ btn.textContent='画像生成に失敗'; setTimeout(()=>btn.textContent=prevLabel,2500); btn.disabled=false; return; }
   try{
-    const dataUrl=await buildPptx(png, w, h, boxes, overlays, 'Hiragino Kaku Gothic ProN');
+    const dataUrl=await buildPptx(png, w, h, boxes, overlays, lines, 'Hiragino Kaku Gothic ProN');
     showSaveModal(dataUrl, 'xpost_McDonaldsJapan_'+state.mode+'.pptx', null);
     btn.textContent='PPTXを生成しました';
     setTimeout(()=>btn.textContent=prevLabel,2000);
