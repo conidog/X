@@ -230,14 +230,145 @@
     .controls{width:100%;border-right:none;border-bottom:1px solid var(--line2);max-height:54vh;}
     .preview{min-height:46vh;}
   }
+  /* ===== home screen (SNS.ppt) ===== */
+  .home{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:24px;
+     background:radial-gradient(120% 120% at 50% 0%,#20242b 0%,#0e1014 60%,#07080a 100%);}
+  .home-wrap{width:min(860px,96vw);text-align:center;}
+  .home-logo{font-size:52px;font-weight:900;letter-spacing:-.02em;color:#fff;}
+  .home-logo span{color:var(--mc-yellow);}
+  .home-tag{color:#aab2bd;font-size:14px;margin-top:8px;font-weight:600;}
+  .home-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:34px;}
+  @media(max-width:680px){ .home-grid{grid-template-columns:1fr;} }
+  .plat-card{cursor:pointer;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:26px 18px 22px;
+     background:rgba(255,255,255,.04);color:#fff;font-family:var(--font);text-align:center;transition:transform .12s,border-color .12s,background .12s;}
+  .plat-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.08);}
+  .plat-card .pc-ico{width:62px;height:62px;border-radius:17px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;}
+  .plat-card .pc-ico svg{width:34px;height:34px;display:block;}
+  .plat-card.x .pc-ico{background:#000;} .plat-card.tt .pc-ico{background:#000;}
+  .plat-card.ig .pc-ico{background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5);}
+  .plat-card .pc-name{font-size:19px;font-weight:800;}
+  .plat-card .pc-desc{font-size:12px;color:#9aa2ad;margin-top:4px;font-weight:600;}
+  .homeBtn{border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.1);color:#fff;border-radius:8px;
+     padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:var(--font);flex:0 0 auto;}
+  .homeBtn:hover{background:rgba(255,255,255,.2);}
+  .topbar h1 .plat{font-size:12px;font-weight:800;background:rgba(255,255,255,.22);padding:2px 9px;border-radius:20px;margin-left:7px;vertical-align:middle;}
+
+  /* ===== generic capture (shared by TikTok/Instagram) ===== */
+  .cap{display:inline-block;}
+  .cap.noframe .screen{border-radius:22px;box-shadow:0 6px 26px rgba(0,0,0,.14);border:1px solid var(--border);}
+  .cap.noframe .island{display:none;}
+  .cap.noframe .homebar{display:none;}
+  .cap.exporting .bezel{box-shadow:inset 0 0 0 2px #2b2b2e;}
+  .cap.exporting.noframe .screen{box-shadow:none;}
+
+  /* ===== TikTok ===== */
+  .tt{ --bg:#000; --text:#fff; --muted:rgba(255,255,255,.72); --border:rgba(255,255,255,.25); --accent:#fe2c55; --cap-size:14px; --name-size:16px; }
+  .tt .screen{background:#000;}
+  .tt-media{position:absolute;inset:0;background:#111 center/cover no-repeat;}
+  .tt-media.ph{background:linear-gradient(160deg,#343845,#111317 70%);}
+  .tt-shade{position:absolute;left:0;right:0;bottom:0;height:52%;z-index:1;background:linear-gradient(0deg,rgba(0,0,0,.6) 0%,rgba(0,0,0,.15) 55%,transparent 100%);}
+  .tt-fore{position:absolute;inset:0;z-index:5;}
+  .tt-fore .statusbar{position:relative;z-index:2;}
+  .tt-top{position:absolute;top:46px;left:0;right:0;display:flex;align-items:center;gap:8px;padding:0 13px;}
+  .tt-live{display:flex;align-items:center;gap:3px;font-size:13px;font-weight:800;color:#fff;flex:0 0 auto;text-shadow:0 1px 3px rgba(0,0,0,.45);}
+  .tt-live svg{width:23px;height:23px;display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));}
+  .tt-toptabs{flex:1;display:flex;justify-content:space-between;align-items:center;padding:0 6px;font-size:15.5px;font-weight:700;color:rgba(255,255,255,.62);text-shadow:0 1px 3px rgba(0,0,0,.4);}
+  .tt-toptabs span{position:relative;white-space:nowrap;}
+  .tt-toptabs .shop::after{content:"";position:absolute;top:-1px;right:-6px;width:5px;height:5px;border-radius:50%;background:#fe2c55;}
+  .tt-toptabs .on{color:#fff;}
+  .tt-toptabs .on::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);width:16px;height:3px;background:#fff;border-radius:2px;}
+  .tt-search{flex:0 0 auto;}
+  .tt-search svg{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2.2;display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));}
+  .tt-more{color:rgba(255,255,255,.72);font-size:var(--cap-size);margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,.55);}
+  .tt-prog{position:absolute;left:12px;right:12px;bottom:60px;height:3px;border-radius:2px;background:rgba(255,255,255,.3);}
+  .tt-prog .f{position:absolute;left:0;top:0;bottom:0;width:17%;background:#fff;border-radius:2px;}
+  .tt-prog .d{position:absolute;left:17%;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 4px rgba(0,0,0,.45);}
+  .tt-rail{position:absolute;right:9px;bottom:66px;display:flex;flex-direction:column;align-items:center;gap:15px;}
+  .tt-rail .rava{width:48px;height:48px;border-radius:50%;background:#555 center/cover;border:2px solid #fff;position:relative;margin-bottom:6px;}
+  .tt-rail .rava .plus{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;}
+  .tt-rail .ri{display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .tt-rail .ri svg{width:35px;height:35px;fill:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45));display:block;}
+  .tt-rail .ri .c{font-size:12.5px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);}
+  .tt-rail .disc{width:46px;height:46px;border-radius:50%;background:#1b1b1b center/cover;border:6px solid #2a2a2a;box-shadow:0 1px 3px rgba(0,0,0,.4);}
+  .tt-cap{position:absolute;left:12px;right:78px;bottom:66px;color:#fff;}
+  .tt-cap .u{font-size:var(--name-size);font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.55);display:flex;align-items:center;gap:5px;}
+  .tt-cap .cap{font-size:var(--cap-size);margin-top:7px;line-height:1.4;text-shadow:0 1px 3px rgba(0,0,0,.55);white-space:pre-wrap;word-break:break-word;overflow:hidden;}
+  .tt-cap .cap .more{color:rgba(255,255,255,.75);font-weight:600;}
+  .tt-cap .music{display:flex;align-items:center;gap:7px;margin-top:9px;font-size:13px;text-shadow:0 1px 3px rgba(0,0,0,.55);}
+  .tt-cap .music svg{width:15px;height:15px;fill:#fff;flex:0 0 auto;}
+  .tt-bnav{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:flex-start;background:#000;padding:7px 2px 9px;}
+  .tt-bnav>div{flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .tt-bnav .bi{color:#fff;font-size:10px;font-weight:600;white-space:nowrap;}
+  .tt-bnav .bi svg{width:25px;height:25px;fill:currentColor;display:block;}
+  .biplus{justify-content:center;}
+  .tt-plus{width:44px;height:29px;position:relative;display:flex;align-items:center;justify-content:center;}
+  .tt-plus i{position:absolute;top:0;width:40px;height:29px;border-radius:9px;}
+  .tt-plus i.a{background:#25f4ee;left:2px;} .tt-plus i.b{background:#fe2c55;right:2px;} .tt-plus i.c{background:#fff;left:4px;right:4px;width:auto;}
+  .tt-plus b{position:relative;z-index:2;color:#000;font-size:21px;font-weight:700;line-height:1;}
+  .tt .homebar{background:#fff;position:absolute;left:50%;bottom:6px;transform:translateX(-50%);margin:0;z-index:7;}
+
+  /* ===== Instagram ===== */
+  .ig{ --bg:#fff; --text:#000; --muted:#8e8e8e; --border:#dbdbdb; --accent:#0095f6; --like:#ed4956; --cap-size:13px; --name-size:13px; }
+  .ig.dark{ --bg:#000; --text:#fff; --muted:#a8a8a8; --border:#262626; }
+  .ig-top{display:flex;align-items:center;justify-content:space-between;padding:7px 15px 11px;}
+  .ig-logo{font-family:"Snell Roundhand","Segoe Script","Bradley Hand",cursive;font-size:26px;font-weight:600;color:var(--text);line-height:1;}
+  .ig-topico{display:flex;gap:19px;}
+  .ig-topico svg{width:24px;height:24px;fill:none;stroke:var(--text);stroke-width:1.9;display:block;}
+  .ig-phead{display:flex;align-items:center;gap:9px;padding:7px 13px;}
+  .ig-phead .av{width:33px;height:33px;border-radius:50%;background:#ccc center/cover;flex:0 0 auto;}
+  .ig-phead .nm{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:3px;}
+  .ig-phead .more{margin-left:auto;color:var(--text);font-size:18px;font-weight:900;letter-spacing:1px;line-height:1;}
+  .ig-vbadge{width:14px;height:14px;display:block;}
+  .ig-media{width:390px;background:#111 center/cover no-repeat;}
+  .ig-media.r11{height:390px;} .ig-media.r45{height:488px;}
+  .ig-media.ph{background:linear-gradient(160deg,#dfe3e8,#c3c9d1);}
+  .ig.dark .ig-media.ph{background:linear-gradient(160deg,#2a2d35,#15171b);}
+  .ig-actions{display:flex;align-items:center;gap:15px;padding:11px 14px 5px;}
+  .ig-actions svg{width:25px;height:25px;fill:none;stroke:var(--text);stroke-width:1.8;display:block;}
+  .ig-actions .like.on svg{fill:var(--like);stroke:var(--like);}
+  .ig-actions .save{margin-left:auto;}
+  .ig-likes{padding:1px 14px 0;font-size:13px;font-weight:700;color:var(--text);}
+  .ig-cap{padding:4px 14px 0;font-size:var(--cap-size);color:var(--text);line-height:1.45;white-space:pre-wrap;word-break:break-word;}
+  .ig-cap .u{font-weight:700;margin-right:5px;}
+  .ig-cmt{padding:5px 14px 0;font-size:13px;color:var(--muted);}
+  .ig-time{padding:4px 14px 0;font-size:10.5px;color:var(--muted);letter-spacing:.02em;}
+  .ig-bnav{display:flex;align-items:center;justify-content:space-around;border-top:1px solid var(--border);padding:11px 14px 7px;background:var(--bg);}
+  .ig-bnav svg{width:25px;height:25px;fill:none;stroke:var(--text);stroke-width:1.9;display:block;}
+  .ig-bnav .pf{width:25px;height:25px;border-radius:50%;background:#bbb center/cover;border:1.5px solid var(--text);}
+  .ig-cap a,.ig-cmt a{color:var(--accent);text-decoration:none;} .tt-cap .cap a{color:#fff;font-weight:700;text-decoration:none;}
+  /* pptx hide classes */
+  .ig.ppx .ig-media,.ig.ppx .ig-actions,.ig.ppx .ig-likes,.ig.ppx .ig-cap .cap{visibility:hidden;}
+  .tt.ppx .tt-rail,.tt.ppx .tt-cap .cap{visibility:hidden;}
 </style>
 
-<div class="app">
+<div id="home" class="home">
+  <div class="home-wrap">
+    <div class="home-logo">SNS<span>.ppt</span></div>
+    <div class="home-tag">SNSの投稿イメージをつくって、PowerPoint用に書き出す</div>
+    <div class="home-grid">
+      <button class="plat-card x" data-open="x">
+        <div class="pc-ico"><svg viewBox="0 0 24 24" fill="#fff"><path d="M18.9 1.6h3.5l-7.6 8.7L23.7 22h-7l-5.5-7.2L4.9 22H1.4l8.1-9.3L.8 1.6h7.2l5 6.6 5.9-6.6Zm-1.2 18.3h1.9L6.4 3.6H4.3l13.4 16.3Z"/></svg></div>
+        <div class="pc-name">X</div><div class="pc-desc">ポスト／ツリー／引用RP</div>
+      </button>
+      <button class="plat-card tt" data-open="tiktok">
+        <div class="pc-ico"><svg viewBox="0 0 24 24"><path fill="#fff" d="M17.1 6a5 5 0 0 1-3-4.8h-3v12.1a2.9 2.9 0 1 1-2.1-2.8V7.4a6 6 0 1 0 5.1 6V8.6a7.9 7.9 0 0 0 3 .9V6Z"/></svg></div>
+        <div class="pc-name">TikTok</div><div class="pc-desc">縦型フルスクリーン</div>
+      </button>
+      <button class="plat-card ig" data-open="instagram">
+        <div class="pc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.3" fill="#fff" stroke="none"/></svg></div>
+        <div class="pc-name">Instagram</div><div class="pc-desc">フィード投稿</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="app-x" class="app">
   <div class="topbar">
+    <button class="homeBtn" data-home>← ホーム</button>
     <div class="logo">M</div>
     <div>
-      <h1>X投稿イメージ メーカー</h1>
-      <div class="sub">@McDonaldsJapan ／ スマホ表示プレビュー（単体・ツリー・引用RP）</div>
+      <h1>SNS.ppt<span class="plat">X</span></h1>
+      <div class="sub">@McDonaldsJapan ／ 単体・ツリー・引用RP</div>
     </div>
     <div class="spacer"></div>
   </div>
@@ -266,6 +397,46 @@
           <div id="capture" class="tw"></div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div id="app-tiktok" class="app" style="display:none">
+  <div class="topbar">
+    <button class="homeBtn" data-home>← ホーム</button>
+    <div class="logo">M</div>
+    <div><h1>SNS.ppt<span class="plat">TikTok</span></h1><div class="sub">@McDonaldsJapan ／ 縦型フルスクリーン</div></div>
+    <div class="spacer"></div>
+  </div>
+  <div class="main">
+    <div class="controls"><div class="scroll" id="ttEditor"></div></div>
+    <div class="preview">
+      <div class="pv-bar"><div class="t">プレビュー</div><div class="spacer"></div>
+        <button class="btn btn-ghost" id="ttZoom">原寸表示</button>
+        <button class="btn btn-ghost" id="ttPpt">PPTX（投稿文編集可）</button>
+        <button class="btn btn-red" id="ttDl">画像を保存（PNG）</button>
+      </div>
+      <div class="pv-scroll" id="ttScroll"><div class="stage" id="ttStage"><div id="ttCapture" class="tt cap"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="app-instagram" class="app" style="display:none">
+  <div class="topbar">
+    <button class="homeBtn" data-home>← ホーム</button>
+    <div class="logo">M</div>
+    <div><h1>SNS.ppt<span class="plat">Instagram</span></h1><div class="sub">@McDonaldsJapan ／ フィード投稿</div></div>
+    <div class="spacer"></div>
+  </div>
+  <div class="main">
+    <div class="controls"><div class="scroll" id="igEditor"></div></div>
+    <div class="preview">
+      <div class="pv-bar"><div class="t">プレビュー</div><div class="spacer"></div>
+        <button class="btn btn-ghost" id="igZoom">原寸表示</button>
+        <button class="btn btn-ghost" id="igPpt">PPTX（投稿文編集可）</button>
+        <button class="btn btn-red" id="igDl">画像を保存（PNG）</button>
+      </div>
+      <div class="pv-scroll" id="igScroll"><div class="stage" id="igStage"><div id="igCapture" class="ig cap"></div></div></div>
     </div>
   </div>
 </div>
@@ -1272,7 +1443,284 @@ document.getElementById('capture').addEventListener('click',function(e){
   if(t){ state.homeTab=t.dataset.tab; renderPreview(); }
 });
 
+/* ============================ SNS.ppt shell + TikTok / Instagram ============================ */
+let activeApp=null;
+function bindEl(id,ev,fn){ const el=document.getElementById(id); if(el) el.addEventListener(ev,fn); }
+function numField(label,id,val){ return '<div class="fld"><label class="f">'+label+'</label><input type="number" id="'+id+'" value="'+(val||0)+'" min="0"></div>'; }
+function segFld(label,name,opts,cur){ const b=opts.map(o=>'<button type="button" data-seg="'+name+'" data-val="'+o[0]+'" class="'+(cur===o[0]?'on':'')+'">'+o[1]+'</button>').join(''); return '<div class="fld"><label class="f">'+label+'</label><div class="seg">'+b+'</div></div>'; }
+function fitStage(scrollId,stageId,capId,zoom){ const wrap=document.getElementById(scrollId),stage=document.getElementById(stageId),card=document.getElementById(capId); if(!wrap||!card) return; const natW=card.offsetWidth||390; let scale=1; if(!zoom){ const avail=wrap.clientWidth-32; scale=Math.min(1,avail/natW);} card.style.transform='scale('+scale+')'; stage.style.height=(card.offsetHeight*scale)+'px'; }
+function sbHTML(t){ return '<div class="statusbar"><div class="sb-l">'+esc(t||'9:41')+'</div><div class="sb-r">'
+  + '<svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>'
+  + '<svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.4c2.6 0 5 1 6.8 2.7l-1.5 1.5C12.4 5.3 10.5 4.5 8.5 4.5S4.6 5.3 3.2 6.6L1.7 5.1C3.5 3.4 5.9 2.4 8.5 2.4zm0 3.5c1.6 0 3 .6 4 1.7L11 9.1c-.7-.7-1.5-1.1-2.5-1.1s-1.8.4-2.5 1.1L4.5 7.6c1-1.1 2.4-1.7 4-1.7zm0 3.4c.7 0 1.4.3 1.9.8L8.5 11.9 6.6 10.1c.5-.5 1.2-.8 1.9-.8z"/></svg>'
+  + '<svg width="26" height="13" viewBox="0 0 26 13"><rect x="0.6" y="0.6" width="21" height="11.8" rx="3.2" fill="none" stroke="currentColor" stroke-opacity=".35"/><rect x="2.1" y="2.1" width="16.5" height="8.8" rx="1.6"/><rect x="23" y="4" width="2" height="5" rx="1" opacity=".4"/></svg>'
+  + '</div></div>'; }
+function captureEl(el,hideSel,scopeClass,vars){
+  return new Promise((resolve,reject)=>{
+    const r=el.getBoundingClientRect(); const w=Math.max(1,Math.round(r.width)), h=Math.max(1,Math.round(r.height));
+    const clone=el.cloneNode(true); clone.style.margin='0';
+    if(hideSel&&hideSel.length) clone.querySelectorAll(hideSel.join(',')).forEach(n=>n.style.visibility='hidden');
+    const css=Array.from(document.querySelectorAll('style')).map(s=>s.textContent).join('\n');
+    let vs=''; if(vars) for(const k in vars) vs+=k+':'+vars[k]+';';
+    const wrap='<div xmlns="http://www.w3.org/1999/xhtml" class="'+scopeClass+'" style="width:'+w+'px;background:transparent;'+vs+'"><style>'+css+'</style>'+new XMLSerializer().serializeToString(clone)+'</div>';
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'"><foreignObject x="0" y="0" width="'+w+'" height="'+h+'">'+wrap+'</foreignObject></svg>';
+    let d; try{ d='data:image/svg+xml;base64,'+btoa(unescape(encodeURIComponent(svg))); }catch(e){ reject(e); return; }
+    const im=new Image(); im.onload=()=>{ try{ const c=document.createElement('canvas'); c.width=w*3; c.height=h*3; const x=c.getContext('2d'); x.setTransform(3,0,0,3,0,0); x.drawImage(im,0,0); resolve(c.toDataURL('image/png')); }catch(e){ reject(e); } };
+    im.onerror=()=>reject(new Error('cap fail')); im.src=d;
+  });
+}
+const ICO={
+  heartF:'<path d="M12 20.7C7 16.3 3 12.9 3 8.9 3 6.1 5.1 4 7.8 4c1.6 0 3.1.8 4.2 2.1C13.1 4.8 14.6 4 16.2 4 18.9 4 21 6.1 21 8.9c0 4-4 7.4-9 11.8z"/>',
+  commentF:'<path fill-rule="evenodd" clip-rule="evenodd" d="M6 3.5h12a4 4 0 0 1 4 4v5a4 4 0 0 1-4 4h-6.2l-4 3.6c-.5.4-1.2 0-1.2-.6V16.5H6a4 4 0 0 1-4-4v-5a4 4 0 0 1 4-4zM6.8 10.5a1.2 1.2 0 1 0 2.4 0 1.2 1.2 0 1 0-2.4 0zM10.8 10.5a1.2 1.2 0 1 0 2.4 0 1.2 1.2 0 1 0-2.4 0zM14 10.5a1.2 1.2 0 1 0 2.4 0 1.2 1.2 0 1 0-2.4 0z"/>',
+  bookmarkF:'<path d="M6.5 3h11c.8 0 1.5.7 1.5 1.5v16.1c0 .5-.6.9-1.1.6L12 18l-5.9 3.2c-.5.3-1.1-.1-1.1-.6V4.5C5 3.7 5.7 3 6.5 3z"/>',
+  shareTT:'<path d="M13 2.8v4.3C6.6 7.6 2.9 11.6 2 19c2.1-3.9 5.7-5.7 11-5.8v4.3c0 .4.5.6.8.3l8-7.5c.2-.2.2-.6 0-.8l-8-7.5c-.3-.3-.8-.1-.8.3z"/>',
+  musicF:'<path d="M19 3 9 5.2v9.3A3.3 3.3 0 1 0 11 17.5V8.9l6-1.3v4A3.3 3.3 0 1 0 19 14.8z"/>',
+  homeF:'<path d="M3 11 12 3l9 8v10h-6v-6H9v6H3z"/>',
+  friendsF:'<path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm8 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 21a7 7 0 0 1 14 0zm15.6 0a6.5 6.5 0 0 0-3.4-5.7A5 5 0 0 1 22 21z"/>',
+  inboxF:'<path d="M4 4h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H8l-4 4z"/>',
+  profileF:'<path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0 2c-4.4 0-8 2.7-8 6v1h16v-1c0-3.3-3.6-6-8-6z"/>',
+  igHeart:'<path d="M12 20s-7-4.4-9.3-8.6C1 8.3 2.7 5.5 5.6 5.5c1.9 0 3.2 1.1 4.1 2.3C10.6 6.6 11.9 5.5 14 5.5c2.9 0 4.6 2.8 2.9 5.9C19 15.6 12 20 12 20z"/>',
+  igComment:'<path d="M21 11.5a8.4 8.4 0 0 1-11.9 7.6L3.5 21l1.9-5.3A8.4 8.4 0 1 1 21 11.5z"/>',
+  igShare:'<path d="M22 3 11 14"/><path d="M22 3 15 21l-4-7-7-4z"/>',
+  igSave:'<path d="M6 3h12v18l-6-4-6 4z"/>',
+  igHome:'<path d="M3 11 12 3l9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  igSearch:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  igReels:'<rect x="3" y="3" width="18" height="18" rx="5"/><path d="M3 8h18M9 3.2l3 4.8M15 3.2l3 4.8"/><path d="M10.5 11.2v4.6l4-2.3z"/>',
+  igShop:'<path d="M5 8h14l-1 12H6zM8.5 8a3.5 3.5 0 0 1 7 0"/>',
+  vcheck:'<path fill="#3897f0" d="m12 2 2 1.6 2.5-.3 1 2.3 2.3 1-.3 2.5L22 12l-1.5 2.4.3 2.5-2.3 1-1 2.3-2.5-.3L12 22l-2-1.8-2.5.3-1-2.3-2.3-1 .3-2.5L2 12l1.5-2.4-.3-2.5 2.3-1 1-2.3 2.5.3z"/><path fill="#fff" d="m10.8 15-3-3 1.3-1.3 1.7 1.7 3.9-3.9 1.3 1.3z"/>'
+};
+function archGroupHTML(prefix, arr){
+  let list;
+  if(!arr.length){ list='<p class="hint" style="margin:10px 0 0">まだアーカイブはありません。</p>'; }
+  else { list='<div class="arch-list">'+arr.map(a=>'<div class="arch-item"><div class="arch-meta"><div class="arch-name">'+esc(a.label)+'</div><div class="arch-sub">'+a.ts+'</div></div><div class="arch-btns"><button class="btn btn-ghost arch-load" data-id="'+a.id+'">復元</button><button class="btn btn-ghost arch-del" data-id="'+a.id+'">削除</button></div></div>').join('')+'</div>'; }
+  return '<div class="group"><div class="glabel">投稿案アーカイブ</div><button class="btn btn-red" id="'+prefix+'_asave" style="width:100%">現在の投稿案を保存</button>'+list+'<p class="hint">ダウンロードしたHTMLで使うとブラウザに保存され次回も残ります。</p></div>';
+}
+function mkArchive(key){ let arr=[]; try{arr=JSON.parse(Store.get(key)||'[]')||[];}catch(e){arr=[];}
+  return { arr, save(st,label){ const d=new Date(),p=n=>String(n).padStart(2,'0'); this.arr.unshift({id:'a'+Date.now()+Math.floor(Math.random()*999),ts:d.getFullYear()+'/'+p(d.getMonth()+1)+'/'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes()),label:(label||'').trim().slice(0,22)||'（無題の投稿案）',data:JSON.parse(JSON.stringify(st))}); Store.set(key,JSON.stringify(this.arr)); },
+    del(id){ this.arr=this.arr.filter(a=>a.id!==id); Store.set(key,JSON.stringify(this.arr)); },
+    get(id){ return this.arr.find(a=>a.id===id); } };
+}
+
+/* ---------------- TikTok ---------------- */
+const TT={ _zoom:false, built:false,
+  state:{ user:'McDonaldsJapan', avatar:null, verified:true,
+    caption:'投稿文を書いてみよう！\n#おすすめは一行', media:null,
+    music:'オリジナル楽曲 - マクドナルド', likes:128400, comments:2310, bookmarks:9820, shares:4530,
+    showRail:true, device:true, statusTime:'9:41', capSize:14 },
+  arch:null
+};
+TT.renderPreview=function(){ const s=TT.state, cap=document.getElementById('ttCapture'); if(!cap) return;
+  cap.className='tt cap'+(s.device?'':' noframe'); cap.style.setProperty('--cap-size',s.capSize+'px');
+  const ava=s.avatar||DEFAULT_AVATAR;
+  const vb=s.verified?'<svg viewBox="0 0 24 24" style="width:16px;height:16px;flex:0 0 auto">'+ICO.vcheck+'</svg>':'';
+  const media=s.media?'<div class="tt-media" style="background-image:url(\''+s.media+'\')"></div>':'<div class="tt-media ph"></div>';
+  const rail=s.showRail?('<div class="tt-rail">'
+     +'<div class="rava" style="background-image:url(\''+ava+'\')"><span class="plus">+</span></div>'
+     +'<div class="ri"><svg viewBox="0 0 24 24">'+ICO.heartF+'</svg><span class="c">'+fmt(s.likes)+'</span></div>'
+     +'<div class="ri"><svg viewBox="0 0 24 24">'+ICO.commentF+'</svg><span class="c">'+fmt(s.comments)+'</span></div>'
+     +'<div class="ri"><svg viewBox="0 0 24 24">'+ICO.bookmarkF+'</svg><span class="c">'+fmt(s.bookmarks)+'</span></div>'
+     +'<div class="ri"><svg viewBox="0 0 24 24">'+ICO.shareTT+'</svg><span class="c">'+fmt(s.shares)+'</span></div>'
+     +'<div class="disc" style="background-image:url(\''+ava+'\')"></div></div>'):'';
+  cap.innerHTML='<div class="bezel"><div class="screen">'+media+'<div class="tt-shade"></div><div class="island"></div>'
+    +'<div class="tt-fore">'+sbHTML(s.statusTime)
+    +'<div class="tt-top">'
+    + '<div class="tt-live"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l4-3 4 3"/><rect x="3" y="7" width="18" height="12" rx="2.6"/></svg></div>'
+    + '<div class="tt-toptabs"><span>ドラマ</span><span>フォロー中</span><span class="shop">ショップ</span><span class="on">おすすめ</span></div>'
+    + '<div class="tt-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></div>'
+    + '</div>'
+    +rail
+    +'<div class="tt-cap"><div class="u">@'+esc(s.user)+' '+vb+'</div><div class="cap">'+linkify(s.caption)+'</div>'
+    +(s.music?('<div class="music"><svg viewBox="0 0 24 24">'+ICO.musicF+'</svg><span>'+esc(s.music)+'</span></div>'):'')
+    +'</div>'
+    +'<div class="tt-prog"><div class="f"></div><div class="d"></div></div>'
+    +'<div class="tt-bnav">'
+    + '<div class="bi on"><svg viewBox="0 0 24 24">'+ICO.homeF+'</svg>ホーム</div>'
+    + '<div class="bi"><svg viewBox="0 0 24 24">'+ICO.friendsF+'</svg>友達</div>'
+    + '<div class="biplus"><div class="tt-plus"><i class="a"></i><i class="b"></i><i class="c"></i><b>+</b></div></div>'
+    + '<div class="bi"><svg viewBox="0 0 24 24"><path d="M5 4.5h14a1.6 1.6 0 0 1 1.6 1.6v7.6a1.6 1.6 0 0 1-1.6 1.6h-6.3L5 20.3V15.9a1.6 1.6 0 0 1-1.6-1.6V6.1A1.6 1.6 0 0 1 5 4.5z"/></svg>メッセージ</div>'
+    + '<div class="bi"><svg viewBox="0 0 24 24">'+ICO.profileF+'</svg>プロフィール</div>'
+    +'</div></div></div></div>';
+  TT.clampCaption();
+  TT.fit();
+};
+TT.clampCaption=function(){
+  const capEl=document.querySelector('#ttCapture .tt-cap .cap'); if(!capEl) return;
+  const full=TT.state.caption||''; TT._capText=full;
+  capEl.style.maxHeight=''; capEl.innerHTML=linkify(full);
+  const lh=parseFloat(getComputedStyle(capEl).lineHeight)||18, twoH=lh*2+1;
+  if(capEl.scrollHeight<=twoH) return;            // fits within 2 lines
+  const more='<span class="more">… もっと見る</span>';
+  let lo=0,hi=full.length,best=0;
+  while(lo<=hi){ const mid=(lo+hi)>>1; capEl.innerHTML=linkify(full.slice(0,mid))+more; if(capEl.scrollHeight<=twoH){best=mid;lo=mid+1;}else{hi=mid-1;} }
+  const cut=full.slice(0,best).replace(/\s+$/,''); TT._capText=cut;
+  capEl.innerHTML=linkify(cut)+more; capEl.style.maxHeight=Math.ceil(twoH)+'px';
+};
+TT.editor=function(){ const s=TT.state, ava=s.avatar||DEFAULT_AVATAR;
+  return '<div class="group"><div class="glabel">アカウント</div>'
+   +'<div class="fld"><label class="f">@ユーザー名</label><div class="handle-wrap"><span>@</span><input type="text" id="tt_user" value="'+esc(s.user)+'"></div></div>'
+   +'<div class="fld"><label class="f">アイコン</label><div class="avatar-ctrl"><img class="ava" src="'+ava+'"><div class="acts"><button class="btn btn-ghost" id="tt_avapick">画像を選ぶ</button><button class="btn btn-ghost" id="tt_avadef">既定（M）に戻す</button></div></div><input type="file" accept="image/*" hidden id="tt_avafile"></div>'
+   +'<label class="chk"><input type="checkbox" id="tt_verified" '+(s.verified?'checked':'')+'>認証バッジを表示</label></div>'
+   +'<div class="group"><div class="glabel">投稿</div>'
+   +'<div class="fld"><label class="f">キャプション</label><textarea id="tt_caption">'+esc(s.caption)+'</textarea></div>'
+   +'<div class="fld"><label class="f">楽曲表示</label><input type="text" id="tt_music" value="'+esc(s.music)+'"></div></div>'
+   +'<div class="group"><div class="glabel">背景（動画フレーム / 画像）</div>'
+   +'<button class="btn btn-ghost" id="tt_mediapick">画像・動画を選ぶ</button><input type="file" accept="image/*,video/*" hidden id="tt_mediafile">'
+   +(s.media?'<div class="thumbs"><div class="thumb"><img src="'+s.media+'"><button id="tt_mediarm">×</button></div></div>':'')
+   +'<p class="hint">動画はブラウザ対応形式（MP4/H.264推奨）なら先頭フレームを自動でサムネイル化します。iPhoneの.mov等は画像を直接指定してください。</p></div>'
+   +'<div class="group"><div class="glabel">エンゲージメント</div>'
+   +'<label class="chk" style="margin-bottom:9px"><input type="checkbox" id="tt_showrail" '+(s.showRail?'checked':'')+'>右側アクション列を表示</label>'
+   +'<div class="stats-grid">'+numField('いいね','tt_likes',s.likes)+numField('コメント','tt_comments',s.comments)+numField('保存','tt_bookmarks',s.bookmarks)+numField('シェア','tt_shares',s.shares)+'</div></div>'
+   +'<div class="group"><div class="glabel">表示</div>'
+   +'<label class="chk" style="margin-bottom:9px"><input type="checkbox" id="tt_device" '+(s.device?'checked':'')+'>端末フレームを表示</label>'
+   +'<div class="fld"><label class="f">ステータスバー時刻</label><input type="text" id="tt_time" value="'+esc(s.statusTime)+'"></div>'
+   +rangeFld('キャプション文字サイズ','tt_capsize',s.capSize,12,22)+'</div>'
+   +archGroupHTML('tt', TT.arch.arr);
+};
+TT.wire=function(){ const s=TT.state, rp=()=>TT.renderPreview();
+  bindEl('tt_user','input',e=>{s.user=e.target.value;rp();});
+  bindEl('tt_caption','input',e=>{s.caption=e.target.value;rp();});
+  bindEl('tt_music','input',e=>{s.music=e.target.value;rp();});
+  bindEl('tt_verified','change',e=>{s.verified=e.target.checked;rp();});
+  bindEl('tt_showrail','change',e=>{s.showRail=e.target.checked;rp();});
+  bindEl('tt_device','change',e=>{s.device=e.target.checked;rp();});
+  bindEl('tt_time','input',e=>{s.statusTime=e.target.value;rp();});
+  ['likes','comments','bookmarks','shares'].forEach(k=>bindEl('tt_'+k,'input',e=>{s[k]=+e.target.value||0;rp();}));
+  bindEl('tt_capsize','input',e=>{s.capSize=+e.target.value;document.getElementById('tt_capsize_v').textContent=e.target.value+'px';rp();});
+  bindEl('tt_avapick','click',()=>document.getElementById('tt_avafile').click());
+  bindEl('tt_avafile','change',e=>readFiles(e.target.files,a=>{ if(a[0]){s.avatar=a[0];TT.build();} }));
+  bindEl('tt_avadef','click',()=>{s.avatar=null;TT.build();});
+  bindEl('tt_mediapick','click',()=>document.getElementById('tt_mediafile').click());
+  bindEl('tt_mediafile','change',e=>{ const f=e.target.files[0]; if(!f) return; if((f.type||'').indexOf('video')===0){ loadVideoPoster(f,res=>{ if(res&&res.poster){s.media=res.poster;TT.build();} }); } else readFiles([f],a=>{ if(a[0]){s.media=a[0];TT.build();} }); });
+  bindEl('tt_mediarm','click',()=>{s.media=null;TT.build();});
+  bindEl('tt_asave','click',()=>{TT.arch.save(s,s.caption);TT.build();});
+  document.querySelectorAll('#ttEditor .arch-load').forEach(b=>b.addEventListener('click',()=>{ const a=TT.arch.get(b.dataset.id); if(a){TT.state=JSON.parse(JSON.stringify(a.data));TT.build();} }));
+  document.querySelectorAll('#ttEditor .arch-del').forEach(b=>b.addEventListener('click',()=>{TT.arch.del(b.dataset.id);TT.build();}));
+};
+TT.build=function(){ document.getElementById('ttEditor').innerHTML=TT.editor(); TT.wire(); TT.renderPreview(); };
+TT.fit=function(){ fitStage('ttScroll','ttStage','ttCapture',TT._zoom); };
+TT.exportPNG=async function(){ const btn=document.getElementById('ttDl'),card=document.getElementById('ttCapture'); const pt=card.style.transform,lb=btn.textContent; btn.disabled=true; btn.textContent='書き出し中…';
+  card.style.transform='none'; card.classList.add('exporting'); await raf2(); const w=card.offsetWidth,h=card.offsetHeight; let url=null;
+  try{ url=await nodeToPNG(card,w,h,3);}catch(e){console.warn(e);} card.classList.remove('exporting'); card.style.transform=pt; TT.fit();
+  if(url) showSaveModal(url,'tiktok_'+TT.state.user+'.png',url); else alert('書き出しに失敗しました'); btn.disabled=false; btn.textContent=lb; };
+TT.exportPPTX=async function(){ if(typeof JSZip==='undefined'){alert('ライブラリ読込に失敗しました');return;} const btn=document.getElementById('ttPpt'),card=document.getElementById('ttCapture'); const pt=card.style.transform,lb=btn.textContent; btn.disabled=true; btn.textContent='書き出し中…';
+  card.style.transform='none'; await raf2(); const cr=card.getBoundingClientRect(), w=card.offsetWidth,h=card.offsetHeight; const vars={'--cap-size':TT.state.capSize+'px'}; const overlays=[],boxes=[]; let ok=true;
+  try{ const capEl=card.querySelector('.tt-cap .cap'); if(capEl&&capEl.textContent.trim()){ const r=capEl.getBoundingClientRect(),cs=getComputedStyle(capEl); boxes.push({x:r.left-cr.left,y:r.top-cr.top,w:r.width,h:r.height,text:(TT._capText||capEl.textContent),fpx:parseFloat(cs.fontSize)||14,lh:1.25,hex:rgbToHex(cs.color)}); }
+    const rail=card.querySelector('.tt-rail'); if(rail){ const r=rail.getBoundingClientRect(); overlays.push({name:'アクション列',png:await captureEl(rail,[],'tt',vars),x:r.left-cr.left,y:r.top-cr.top,w:r.width,h:r.height}); }
+  }catch(e){console.warn(e);ok=false;overlays.length=0;boxes.length=0;}
+  card.classList.add('exporting'); if(ok) card.classList.add('ppx'); await raf2(); let bg=null; try{ bg=await nodeToPNG(card,w,h,3);}catch(e){console.warn(e);}
+  card.classList.remove('exporting'); card.classList.remove('ppx'); card.style.transform=pt; TT.fit();
+  if(!bg){alert('書き出しに失敗しました');btn.disabled=false;btn.textContent=lb;return;}
+  try{ const durl=await buildPptx(bg,w,h,boxes,overlays,[],'Hiragino Kaku Gothic ProN'); showSaveModal(durl,'tiktok_'+TT.state.user+'.pptx',null);}catch(e){console.error(e);alert('書き出しに失敗しました');}
+  btn.disabled=false; btn.textContent=lb; };
+TT.ensure=function(){ if(TT.built) return; TT.built=true; TT.arch=mkArchive('snsppt_tt_v1'); TT.build();
+  bindEl('ttZoom','click',function(){ TT._zoom=!TT._zoom; this.textContent=TT._zoom?'画面に合わせる':'原寸表示'; TT.fit(); });
+  bindEl('ttDl','click',TT.exportPNG); bindEl('ttPpt','click',TT.exportPPTX); };
+
+/* ---------------- Instagram ---------------- */
+const IG={ _zoom:false, built:false,
+  state:{ user:'mcdonaldsjapan', avatar:null, verified:true,
+    caption:'月見バーガー、今年も登場🌕\n秋の夜長にどうぞ。\n#月見 #McDonalds', media:null, ratio:'11',
+    likes:12840, comments:320, showLikes:true, showCounts:true, theme:'light', device:true, statusTime:'9:41', capSize:13, time:'1時間' },
+  arch:null
+};
+IG.renderPreview=function(){ const s=IG.state, cap=document.getElementById('igCapture'); if(!cap) return;
+  cap.className='ig cap'+(s.theme==='dark'?' dark':'')+(s.device?'':' noframe'); cap.style.setProperty('--cap-size',s.capSize+'px');
+  const ava=s.avatar||DEFAULT_AVATAR;
+  const vb=s.verified?'<svg class="ig-vbadge" viewBox="0 0 24 24" style="width:13px;height:13px">'+ICO.vcheck+'</svg>':'';
+  const media=s.media?'<div class="ig-media r'+s.ratio+'" style="background-image:url(\''+s.media+'\')"></div>':'<div class="ig-media r'+s.ratio+' ph"></div>';
+  cap.innerHTML='<div class="bezel"><div class="screen"><div class="island"></div>'+sbHTML(s.statusTime)
+    +'<div class="ig-top"><div class="ig-logo">Instagram</div><div class="ig-topico"><svg viewBox="0 0 24 24">'+ICO.igHeart+'</svg><svg viewBox="0 0 24 24">'+ICO.igShare+'</svg></div></div>'
+    +'<div class="ig-post"><div class="ig-phead"><div class="av" style="background-image:url(\''+ava+'\')"></div><div class="nm">'+esc(s.user)+' '+vb+'</div><div class="more">···</div></div>'
+    +media
+    +'<div class="ig-actions"><span class="like"><svg viewBox="0 0 24 24">'+ICO.igHeart+'</svg></span><span><svg viewBox="0 0 24 24">'+ICO.igComment+'</svg></span><span><svg viewBox="0 0 24 24">'+ICO.igShare+'</svg></span><span class="save"><svg viewBox="0 0 24 24">'+ICO.igSave+'</svg></span></div>'
+    +(s.showLikes?'<div class="ig-likes">いいね！'+fmt(s.likes)+'件</div>':'')
+    +'<div class="ig-cap"><span class="u">'+esc(s.user)+'</span><span class="cap">'+linkify(s.caption)+'</span></div>'
+    +(s.showCounts&&s.comments>0?'<div class="ig-cmt">コメント'+fmt(s.comments)+'件をすべて見る</div>':'')
+    +'<div class="ig-time">'+esc(s.time)+'前</div></div>'
+    +'<div class="botwrap"><div class="ig-bnav"><svg viewBox="0 0 24 24">'+ICO.igHome+'</svg><svg viewBox="0 0 24 24">'+ICO.igSearch+'</svg><svg viewBox="0 0 24 24">'+ICO.igReels+'</svg><svg viewBox="0 0 24 24">'+ICO.igShop+'</svg><div class="pf" style="background-image:url(\''+ava+'\')"></div></div><div class="homebar"></div></div>'
+    +'</div></div>';
+  IG.fit();
+};
+IG.editor=function(){ const s=IG.state, ava=s.avatar||DEFAULT_AVATAR;
+  return '<div class="group"><div class="glabel">アカウント</div>'
+   +'<div class="fld"><label class="f">ユーザーネーム</label><input type="text" id="ig_user" value="'+esc(s.user)+'"></div>'
+   +'<div class="fld"><label class="f">アイコン</label><div class="avatar-ctrl"><img class="ava" src="'+ava+'"><div class="acts"><button class="btn btn-ghost" id="ig_avapick">画像を選ぶ</button><button class="btn btn-ghost" id="ig_avadef">既定（M）に戻す</button></div></div><input type="file" accept="image/*" hidden id="ig_avafile"></div>'
+   +'<label class="chk"><input type="checkbox" id="ig_verified" '+(s.verified?'checked':'')+'>認証バッジを表示</label></div>'
+   +'<div class="group"><div class="glabel">投稿</div><div class="fld"><label class="f">キャプション</label><textarea id="ig_caption">'+esc(s.caption)+'</textarea></div></div>'
+   +'<div class="group"><div class="glabel">画像</div><button class="btn btn-ghost" id="ig_mediapick">画像を選ぶ</button><input type="file" accept="image/*" hidden id="ig_mediafile">'
+   +(s.media?'<div class="thumbs"><div class="thumb"><img src="'+s.media+'"><button id="ig_mediarm">×</button></div></div>':'')
+   +segFld('アスペクト比','ratio',[['11','正方形 1:1'],['45','縦長 4:5']],s.ratio)+'</div>'
+   +'<div class="group"><div class="glabel">エンゲージメント</div>'
+   +'<label class="chk" style="margin-bottom:8px"><input type="checkbox" id="ig_showlikes" '+(s.showLikes?'checked':'')+'>いいね数を表示</label>'
+   +'<label class="chk" style="margin-bottom:9px"><input type="checkbox" id="ig_showcounts" '+(s.showCounts?'checked':'')+'>コメント件数を表示</label>'
+   +'<div class="stats-grid">'+numField('いいね','ig_likes',s.likes)+numField('コメント','ig_comments',s.comments)+'</div></div>'
+   +'<div class="group"><div class="glabel">表示</div>'
+   +segFld('テーマ','theme',[['light','ライト'],['dark','ダーク']],s.theme)
+   +'<label class="chk" style="margin:4px 0 9px"><input type="checkbox" id="ig_device" '+(s.device?'checked':'')+'>端末フレームを表示</label>'
+   +'<div class="row"><div class="fld" style="margin:0"><label class="f">ステータス時刻</label><input type="text" id="ig_time" value="'+esc(s.statusTime)+'"></div><div class="fld" style="margin:0"><label class="f">投稿からの経過</label><input type="text" id="ig_ago" value="'+esc(s.time)+'"></div></div>'
+   +rangeFld('キャプション文字サイズ','ig_capsize',s.capSize,11,20)+'</div>'
+   +archGroupHTML('ig', IG.arch.arr);
+};
+IG.wire=function(){ const s=IG.state, rp=()=>IG.renderPreview();
+  bindEl('ig_user','input',e=>{s.user=e.target.value;rp();});
+  bindEl('ig_caption','input',e=>{s.caption=e.target.value;rp();});
+  bindEl('ig_verified','change',e=>{s.verified=e.target.checked;rp();});
+  bindEl('ig_showlikes','change',e=>{s.showLikes=e.target.checked;rp();});
+  bindEl('ig_showcounts','change',e=>{s.showCounts=e.target.checked;rp();});
+  bindEl('ig_device','change',e=>{s.device=e.target.checked;rp();});
+  bindEl('ig_time','input',e=>{s.statusTime=e.target.value;rp();});
+  bindEl('ig_ago','input',e=>{s.time=e.target.value;rp();});
+  ['likes','comments'].forEach(k=>bindEl('ig_'+k,'input',e=>{s[k]=+e.target.value||0;rp();}));
+  bindEl('ig_capsize','input',e=>{s.capSize=+e.target.value;document.getElementById('ig_capsize_v').textContent=e.target.value+'px';rp();});
+  bindEl('ig_avapick','click',()=>document.getElementById('ig_avafile').click());
+  bindEl('ig_avafile','change',e=>readFiles(e.target.files,a=>{ if(a[0]){s.avatar=a[0];IG.build();} }));
+  bindEl('ig_avadef','click',()=>{s.avatar=null;IG.build();});
+  bindEl('ig_mediapick','click',()=>document.getElementById('ig_mediafile').click());
+  bindEl('ig_mediafile','change',e=>readFiles(e.target.files,a=>{ if(a[0]){s.media=a[0];IG.build();} }));
+  bindEl('ig_mediarm','click',()=>{s.media=null;IG.build();});
+  document.querySelectorAll('#igEditor [data-seg]').forEach(b=>b.addEventListener('click',()=>{ s[b.dataset.seg]=b.dataset.val; IG.build(); }));
+  bindEl('ig_asave','click',()=>{IG.arch.save(s,s.caption);IG.build();});
+  document.querySelectorAll('#igEditor .arch-load').forEach(b=>b.addEventListener('click',()=>{ const a=IG.arch.get(b.dataset.id); if(a){IG.state=JSON.parse(JSON.stringify(a.data));IG.build();} }));
+  document.querySelectorAll('#igEditor .arch-del').forEach(b=>b.addEventListener('click',()=>{IG.arch.del(b.dataset.id);IG.build();}));
+};
+IG.build=function(){ document.getElementById('igEditor').innerHTML=IG.editor(); IG.wire(); IG.renderPreview(); };
+IG.fit=function(){ fitStage('igScroll','igStage','igCapture',IG._zoom); };
+IG.exportPNG=async function(){ const btn=document.getElementById('igDl'),card=document.getElementById('igCapture'); const pt=card.style.transform,lb=btn.textContent; btn.disabled=true; btn.textContent='書き出し中…';
+  card.style.transform='none'; card.classList.add('exporting'); await raf2(); const w=card.offsetWidth,h=card.offsetHeight; let url=null;
+  try{ url=await nodeToPNG(card,w,h,3);}catch(e){console.warn(e);} card.classList.remove('exporting'); card.style.transform=pt; IG.fit();
+  if(url) showSaveModal(url,'instagram_'+IG.state.user+'.png',url); else alert('書き出しに失敗しました'); btn.disabled=false; btn.textContent=lb; };
+IG.exportPPTX=async function(){ if(typeof JSZip==='undefined'){alert('ライブラリ読込に失敗しました');return;} const btn=document.getElementById('igPpt'),card=document.getElementById('igCapture'); const pt=card.style.transform,lb=btn.textContent; btn.disabled=true; btn.textContent='書き出し中…';
+  card.style.transform='none'; await raf2(); const cr=card.getBoundingClientRect(), w=card.offsetWidth,h=card.offsetHeight; const scope='ig'+(IG.state.theme==='dark'?' dark':''); const overlays=[],boxes=[]; let ok=true;
+  const addBox=(el,lh)=>{ if(!el||!el.textContent.trim()) return; const r=el.getBoundingClientRect(),cs=getComputedStyle(el),pl=parseFloat(cs.paddingLeft)||0,pt2=parseFloat(cs.paddingTop)||0,pr=parseFloat(cs.paddingRight)||0; boxes.push({x:r.left-cr.left+pl,y:r.top-cr.top+pt2,w:Math.max(10,r.width-pl-pr),h:r.height,text:el.textContent,fpx:parseFloat(cs.fontSize)||13,lh:lh,hex:rgbToHex(cs.color)}); };
+  try{ addBox(card.querySelector('.ig-cap .cap'),1.3); addBox(card.querySelector('.ig-likes'),1.2);
+    const med=card.querySelector('.ig-media'); if(med){ const r=med.getBoundingClientRect(); overlays.push({name:'投稿画像',png:await captureEl(med,[],scope,{}),x:r.left-cr.left,y:r.top-cr.top,w:r.width,h:r.height}); }
+    const act=card.querySelector('.ig-actions'); if(act){ const r=act.getBoundingClientRect(); overlays.push({name:'アクション',png:await captureEl(act,[],scope,{}),x:r.left-cr.left,y:r.top-cr.top,w:r.width,h:r.height}); }
+  }catch(e){console.warn(e);ok=false;overlays.length=0;boxes.length=0;}
+  card.classList.add('exporting'); if(ok) card.classList.add('ppx'); await raf2(); let bg=null; try{ bg=await nodeToPNG(card,w,h,3);}catch(e){console.warn(e);}
+  card.classList.remove('exporting'); card.classList.remove('ppx'); card.style.transform=pt; IG.fit();
+  if(!bg){alert('書き出しに失敗しました');btn.disabled=false;btn.textContent=lb;return;}
+  try{ const durl=await buildPptx(bg,w,h,boxes,overlays,[],'Hiragino Kaku Gothic ProN'); showSaveModal(durl,'instagram_'+IG.state.user+'.pptx',null);}catch(e){console.error(e);alert('書き出しに失敗しました');}
+  btn.disabled=false; btn.textContent=lb; };
+IG.ensure=function(){ if(IG.built) return; IG.built=true; IG.arch=mkArchive('snsppt_ig_v1'); IG.build();
+  bindEl('igZoom','click',function(){ IG._zoom=!IG._zoom; this.textContent=IG._zoom?'画面に合わせる':'原寸表示'; IG.fit(); });
+  bindEl('igDl','click',IG.exportPNG); bindEl('igPpt','click',IG.exportPPTX); };
+
+/* ---------------- navigation ---------------- */
+function showApp(name){ document.getElementById('home').style.display=name?'none':'flex';
+  ['x','tiktok','instagram'].forEach(p=>{ const el=document.getElementById('app-'+p); if(el) el.style.display='none'; });
+  if(name){ document.getElementById('app-'+name).style.display='flex';
+    if(name==='x') fitPreview(); else if(name==='tiktok') TT.renderPreview(); else if(name==='instagram') IG.renderPreview(); }
+  activeApp=name;
+}
+function navInit(){
+  document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>showApp(b.dataset.open)));
+  document.querySelectorAll('[data-home]').forEach(b=>b.addEventListener('click',()=>showApp(null)));
+  window.addEventListener('resize',()=>{ if(activeApp==='x')fitPreview(); else if(activeApp==='tiktok')TT.fit(); else if(activeApp==='instagram')IG.fit(); });
+  showApp(null);
+}
+
 /* init */
 loadArchives();
-renderEditor();
+renderEditor();        /* X */
+TT.ensure(); IG.ensure();
+navInit();
 </script>
