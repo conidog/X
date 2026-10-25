@@ -264,10 +264,10 @@
   /* ===== TikTok ===== */
   .tt{ --bg:#000; --text:#fff; --muted:rgba(255,255,255,.72); --border:rgba(255,255,255,.25); --accent:#fe2c55; --cap-size:14px; --name-size:16px; }
   .tt .screen{background:#000;}
-  .tt-media{position:absolute;inset:0;background:#111 center/cover no-repeat;}
+  .tt-media{position:absolute;top:0;left:0;right:0;bottom:0;background:#111 center/cover no-repeat;}
   .tt-media.ph{background:linear-gradient(160deg,#343845,#111317 70%);}
   .tt-shade{position:absolute;left:0;right:0;bottom:0;height:52%;z-index:1;background:linear-gradient(0deg,rgba(0,0,0,.6) 0%,rgba(0,0,0,.15) 55%,transparent 100%);}
-  .tt-fore{position:absolute;inset:0;z-index:5;}
+  .tt-fore{position:absolute;top:0;left:0;right:0;bottom:0;z-index:5;}
   .tt-fore .statusbar{position:relative;z-index:2;}
   .tt-top{position:absolute;top:46px;left:0;right:0;display:flex;align-items:center;gap:8px;padding:0 13px;}
   .tt-live{display:flex;align-items:center;gap:3px;font-size:13px;font-weight:800;color:#fff;flex:0 0 auto;text-shadow:0 1px 3px rgba(0,0,0,.45);}
@@ -280,17 +280,17 @@
   .tt-search{flex:0 0 auto;}
   .tt-search svg{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2.2;display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));}
   .tt-more{color:rgba(255,255,255,.72);font-size:var(--cap-size);margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,.55);}
-  .tt-prog{position:absolute;left:12px;right:12px;bottom:60px;height:3px;border-radius:2px;background:rgba(255,255,255,.3);}
+  .tt-prog{position:absolute;left:12px;right:12px;bottom:61px;height:3px;border-radius:2px;background:rgba(255,255,255,.3);z-index:8;}
   .tt-prog .f{position:absolute;left:0;top:0;bottom:0;width:17%;background:#fff;border-radius:2px;}
   .tt-prog .d{position:absolute;left:17%;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 4px rgba(0,0,0,.45);}
-  .tt-rail{position:absolute;right:9px;bottom:66px;display:flex;flex-direction:column;align-items:center;gap:15px;}
+  .tt-rail{position:absolute;right:9px;bottom:80px;display:flex;flex-direction:column;align-items:center;gap:15px;}
   .tt-rail .rava{width:48px;height:48px;border-radius:50%;background:#555 center/cover;border:2px solid #fff;position:relative;margin-bottom:6px;}
   .tt-rail .rava .plus{position:absolute;bottom:-9px;left:50%;transform:translateX(-50%);width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;}
   .tt-rail .ri{display:flex;flex-direction:column;align-items:center;gap:3px;}
   .tt-rail .ri svg{width:35px;height:35px;fill:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45));display:block;}
   .tt-rail .ri .c{font-size:12.5px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);}
   .tt-rail .disc{width:46px;height:46px;border-radius:50%;background:#1b1b1b center/cover;border:6px solid #2a2a2a;box-shadow:0 1px 3px rgba(0,0,0,.4);}
-  .tt-cap{position:absolute;left:12px;right:78px;bottom:66px;color:#fff;}
+  .tt-cap{position:absolute;left:12px;right:78px;bottom:80px;color:#fff;}
   .tt-cap .u{font-size:var(--name-size);font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.55);display:flex;align-items:center;gap:5px;}
   .tt-cap .cap{font-size:var(--cap-size);margin-top:7px;line-height:1.4;text-shadow:0 1px 3px rgba(0,0,0,.55);white-space:pre-wrap;word-break:break-word;overflow:hidden;}
   .tt-cap .cap .more{color:rgba(255,255,255,.75);font-weight:600;}
@@ -1311,7 +1311,7 @@ function pptLineXml(id, ln){
     +'<a:prstGeom prst="line"><a:avLst/></a:prstGeom>'
     +'<a:ln w="'+wEmu+'" cap="rnd"><a:solidFill><a:srgbClr val="'+ln.hex+'"/></a:solidFill></a:ln></p:spPr></p:cxnSp>';
 }
-async function buildPptx(bgPng, wPx, hPx, boxes, overlays, lines, face){
+async function buildPptx(bgPng, wPx, hPx, boxes, overlays, lines, face, bgColor){
   const W=Math.round(wPx*EMU), H=Math.round(hPx*EMU);
   const nOv=overlays.length;
   const presentation='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
@@ -1334,7 +1334,7 @@ async function buildPptx(bgPng, wPx, hPx, boxes, overlays, lines, face){
   boxes.forEach(b=>{ body+=pptSpXml(id, b, face); id++; });
   const slide='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
     +'<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">'
-    +'<p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr>'
+    +'<p:cSld>'+(bgColor?('<p:bg><p:bgPr><a:solidFill><a:srgbClr val="'+bgColor+'"/></a:solidFill><a:effectLst/></p:bgPr></p:bg>'):'')+'<p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr>'
     +'<p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+W+'" cy="'+H+'"/><a:chOff x="0" y="0"/><a:chExt cx="'+W+'" cy="'+H+'"/></a:xfrm></p:grpSpPr>'
     + body
     +'</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>';
@@ -1351,9 +1351,12 @@ async function buildPptx(bgPng, wPx, hPx, boxes, overlays, lines, face){
   ppt.folder('slideLayouts').folder('_rels').file('slideLayout1.xml.rels', PPTX_LAYOUTRELS);
   ppt.folder('slides').file('slide1.xml', slide);
   ppt.folder('slides').folder('_rels').file('slide1.xml.rels', sliderels);
-  ppt.folder('media').file('image1.png', bgPng.split(',')[1], {base64:true});
-  overlays.forEach((o,i)=>{ ppt.folder('media').file('image'+(2+i)+'.png', o.png.split(',')[1], {base64:true}); });
-  const out=await zip.generateAsync({type:'base64'});
+  const PX1='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='; // 1x1 transparent PNG
+  const b64of=(d)=>{ const b=(d&&d.indexOf(',')>=0)?d.slice(d.indexOf(',')+1):''; return b.length?b:PX1; };
+  ppt.folder('media').file('image1.png', b64of(bgPng), {base64:true});
+  overlays.forEach((o,i)=>{ ppt.folder('media').file('image'+(2+i)+'.png', b64of(o.png), {base64:true}); });
+  Object.keys(zip.files).forEach(function(k){ if(zip.files[k].dir) delete zip.files[k]; }); // OOXML packages must not contain directory entries (PowerPoint repair)
+  const out=await zip.generateAsync({type:'base64', compression:'DEFLATE'});
   return 'data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,'+out;
 }
 
@@ -1449,6 +1452,7 @@ function bindEl(id,ev,fn){ const el=document.getElementById(id); if(el) el.addEv
 function numField(label,id,val){ return '<div class="fld"><label class="f">'+label+'</label><input type="number" id="'+id+'" value="'+(val||0)+'" min="0"></div>'; }
 function segFld(label,name,opts,cur){ const b=opts.map(o=>'<button type="button" data-seg="'+name+'" data-val="'+o[0]+'" class="'+(cur===o[0]?'on':'')+'">'+o[1]+'</button>').join(''); return '<div class="fld"><label class="f">'+label+'</label><div class="seg">'+b+'</div></div>'; }
 function fitStage(scrollId,stageId,capId,zoom){ const wrap=document.getElementById(scrollId),stage=document.getElementById(stageId),card=document.getElementById(capId); if(!wrap||!card) return; const natW=card.offsetWidth||390; let scale=1; if(!zoom){ const avail=wrap.clientWidth-32; scale=Math.min(1,avail/natW);} card.style.transform='scale('+scale+')'; stage.style.height=(card.offsetHeight*scale)+'px'; }
+function measureCard(card){ let w=card.offsetWidth,h=card.offsetHeight; if(!w||!h){ const r=card.getBoundingClientRect(); w=w||Math.round(r.width); h=h||Math.round(r.height); } const sc=card.querySelector('.screen'); if((!w||!h)&&sc){ const sr=sc.getBoundingClientRect(); const pad=card.classList.contains('noframe')?2:26; w=w||(Math.round(sr.width)+pad); h=h||(Math.round(sr.height)+pad); } const nf=card.classList.contains('noframe'); if(!w) w=nf?392:416; if(!h) h=nf?846:870; return {w,h}; }
 function sbHTML(t){ return '<div class="statusbar"><div class="sb-l">'+esc(t||'9:41')+'</div><div class="sb-r">'
   + '<svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>'
   + '<svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.4c2.6 0 5 1 6.8 2.7l-1.5 1.5C12.4 5.3 10.5 4.5 8.5 4.5S4.6 5.3 3.2 6.6L1.7 5.1C3.5 3.4 5.9 2.4 8.5 2.4zm0 3.5c1.6 0 3 .6 4 1.7L11 9.1c-.7-.7-1.5-1.1-2.5-1.1s-1.8.4-2.5 1.1L4.5 7.6c1-1.1 2.4-1.7 4-1.7zm0 3.4c.7 0 1.4.3 1.9.8L8.5 11.9 6.6 10.1c.5-.5 1.2-.8 1.9-.8z"/></svg>'
@@ -1519,7 +1523,7 @@ TT.renderPreview=function(){ const s=TT.state, cap=document.getElementById('ttCa
      +'<div class="ri"><svg viewBox="0 0 24 24">'+ICO.commentF+'</svg><span class="c">'+fmt(s.comments)+'</span></div>'
      +'<div class="ri"><svg viewBox="0 0 24 24">'+ICO.bookmarkF+'</svg><span class="c">'+fmt(s.bookmarks)+'</span></div>'
      +'<div class="ri"><svg viewBox="0 0 24 24">'+ICO.shareTT+'</svg><span class="c">'+fmt(s.shares)+'</span></div>'
-     +'<div class="disc" style="background-image:url(\''+ava+'\')"></div></div>'):'';
+     +((s.music&&s.music.trim())?'<div class="disc" style="background-image:url(\''+ava+'\')"></div>':'')+'</div>'):'';
   cap.innerHTML='<div class="bezel"><div class="screen">'+media+'<div class="tt-shade"></div><div class="island"></div>'
     +'<div class="tt-fore">'+sbHTML(s.statusTime)
     +'<div class="tt-top">'
@@ -1597,19 +1601,21 @@ TT.wire=function(){ const s=TT.state, rp=()=>TT.renderPreview();
 };
 TT.build=function(){ document.getElementById('ttEditor').innerHTML=TT.editor(); TT.wire(); TT.renderPreview(); };
 TT.fit=function(){ fitStage('ttScroll','ttStage','ttCapture',TT._zoom); };
+TT._expOn=function(card){ const m={'--bg':'#000','--text':'#ffffff','--muted':'rgba(255,255,255,.72)','--border':'rgba(255,255,255,.25)','--accent':'#fe2c55'}; for(const k in m) card.style.setProperty(k,m[k]); const sc=card.querySelector('.screen'); if(sc){ card._scbg=sc.style.background; sc.style.background='#000'; } };
+TT._expOff=function(card){ ['--bg','--text','--muted','--border','--accent'].forEach(k=>card.style.removeProperty(k)); const sc=card.querySelector('.screen'); if(sc) sc.style.background=(card._scbg||''); };
 TT.exportPNG=async function(){ const btn=document.getElementById('ttDl'),card=document.getElementById('ttCapture'); const pt=card.style.transform,lb=btn.textContent; btn.disabled=true; btn.textContent='書き出し中…';
-  card.style.transform='none'; card.classList.add('exporting'); await raf2(); const w=card.offsetWidth,h=card.offsetHeight; let url=null;
-  try{ url=await nodeToPNG(card,w,h,3);}catch(e){console.warn(e);} card.classList.remove('exporting'); card.style.transform=pt; TT.fit();
+  card.style.transform='none'; card.classList.add('exporting'); TT._expOn(card); await raf2(); const {w,h}=measureCard(card); let url=null;
+  try{ url=await nodeToPNG(card,w,h,3);}catch(e){console.warn(e);} TT._expOff(card); card.classList.remove('exporting'); card.style.transform=pt; TT.fit();
   if(url) showSaveModal(url,'tiktok_'+TT.state.user+'.png',url); else alert('書き出しに失敗しました'); btn.disabled=false; btn.textContent=lb; };
 TT.exportPPTX=async function(){ if(typeof JSZip==='undefined'){alert('ライブラリ読込に失敗しました');return;} const btn=document.getElementById('ttPpt'),card=document.getElementById('ttCapture'); const pt=card.style.transform,lb=btn.textContent; btn.disabled=true; btn.textContent='書き出し中…';
-  card.style.transform='none'; await raf2(); const cr=card.getBoundingClientRect(), w=card.offsetWidth,h=card.offsetHeight; const vars={'--cap-size':TT.state.capSize+'px'}; const overlays=[],boxes=[]; let ok=true;
-  try{ const capEl=card.querySelector('.tt-cap .cap'); if(capEl&&capEl.textContent.trim()){ const r=capEl.getBoundingClientRect(),cs=getComputedStyle(capEl); boxes.push({x:r.left-cr.left,y:r.top-cr.top,w:r.width,h:r.height,text:(TT._capText||capEl.textContent),fpx:parseFloat(cs.fontSize)||14,lh:1.25,hex:rgbToHex(cs.color)}); }
+  card.style.transform='none'; await raf2(); const cr=card.getBoundingClientRect(), {w,h}=measureCard(card); const vars={'--cap-size':TT.state.capSize+'px','--text':'#ffffff','--bg':'#000000','--muted':'rgba(255,255,255,.72)','--border':'rgba(255,255,255,.25)','--accent':'#fe2c55'}; const overlays=[],boxes=[]; let ok=true;
+  try{ const capEl=card.querySelector('.tt-cap .cap'); if(capEl&&capEl.textContent.trim()){ const r=capEl.getBoundingClientRect(),cs=getComputedStyle(capEl); boxes.push({x:r.left-cr.left,y:r.top-cr.top,w:r.width,h:r.height,text:(TT._capText||capEl.textContent),fpx:parseFloat(cs.fontSize)||14,lh:1.25,hex:'FFFFFF'}); }
     const rail=card.querySelector('.tt-rail'); if(rail){ const r=rail.getBoundingClientRect(); overlays.push({name:'アクション列',png:await captureEl(rail,[],'tt',vars),x:r.left-cr.left,y:r.top-cr.top,w:r.width,h:r.height}); }
   }catch(e){console.warn(e);ok=false;overlays.length=0;boxes.length=0;}
-  card.classList.add('exporting'); if(ok) card.classList.add('ppx'); await raf2(); let bg=null; try{ bg=await nodeToPNG(card,w,h,3);}catch(e){console.warn(e);}
-  card.classList.remove('exporting'); card.classList.remove('ppx'); card.style.transform=pt; TT.fit();
+  card.classList.add('exporting'); if(ok) card.classList.add('ppx'); TT._expOn(card); await raf2(); let bg=null; try{ bg=await nodeToPNG(card,w,h,3);}catch(e){console.warn(e);}
+  TT._expOff(card); card.classList.remove('exporting'); card.classList.remove('ppx'); card.style.transform=pt; TT.fit();
   if(!bg){alert('書き出しに失敗しました');btn.disabled=false;btn.textContent=lb;return;}
-  try{ const durl=await buildPptx(bg,w,h,boxes,overlays,[],'Hiragino Kaku Gothic ProN'); showSaveModal(durl,'tiktok_'+TT.state.user+'.pptx',null);}catch(e){console.error(e);alert('書き出しに失敗しました');}
+  try{ const durl=await buildPptx(bg,w,h,boxes,overlays,[],'Hiragino Kaku Gothic ProN','000000'); showSaveModal(durl,'tiktok_'+TT.state.user+'.pptx',null);}catch(e){console.error(e);alert('書き出しに失敗しました');}
   btn.disabled=false; btn.textContent=lb; };
 TT.ensure=function(){ if(TT.built) return; TT.built=true; TT.arch=mkArchive('snsppt_tt_v1'); TT.build();
   bindEl('ttZoom','click',function(){ TT._zoom=!TT._zoom; this.textContent=TT._zoom?'画面に合わせる':'原寸表示'; TT.fit(); });
@@ -1684,21 +1690,23 @@ IG.wire=function(){ const s=IG.state, rp=()=>IG.renderPreview();
 };
 IG.build=function(){ document.getElementById('igEditor').innerHTML=IG.editor(); IG.wire(); IG.renderPreview(); };
 IG.fit=function(){ fitStage('igScroll','igStage','igCapture',IG._zoom); };
+IG._expOn=function(card){ const dark=IG.state.theme==='dark'; const m=dark?{'--bg':'#000','--text':'#ffffff','--muted':'#a8a8a8','--border':'#262626','--accent':'#0095f6'}:{'--bg':'#ffffff','--text':'#000000','--muted':'#8e8e8e','--border':'#dbdbdb','--accent':'#0095f6'}; for(const k in m) card.style.setProperty(k,m[k]); const sc=card.querySelector('.screen'); if(sc){ card._scbg=sc.style.background; sc.style.background=m['--bg']; } };
+IG._expOff=function(card){ ['--bg','--text','--muted','--border','--accent'].forEach(k=>card.style.removeProperty(k)); const sc=card.querySelector('.screen'); if(sc) sc.style.background=(card._scbg||''); };
 IG.exportPNG=async function(){ const btn=document.getElementById('igDl'),card=document.getElementById('igCapture'); const pt=card.style.transform,lb=btn.textContent; btn.disabled=true; btn.textContent='書き出し中…';
-  card.style.transform='none'; card.classList.add('exporting'); await raf2(); const w=card.offsetWidth,h=card.offsetHeight; let url=null;
-  try{ url=await nodeToPNG(card,w,h,3);}catch(e){console.warn(e);} card.classList.remove('exporting'); card.style.transform=pt; IG.fit();
+  card.style.transform='none'; card.classList.add('exporting'); IG._expOn(card); await raf2(); const {w,h}=measureCard(card); let url=null;
+  try{ url=await nodeToPNG(card,w,h,3);}catch(e){console.warn(e);} IG._expOff(card); card.classList.remove('exporting'); card.style.transform=pt; IG.fit();
   if(url) showSaveModal(url,'instagram_'+IG.state.user+'.png',url); else alert('書き出しに失敗しました'); btn.disabled=false; btn.textContent=lb; };
 IG.exportPPTX=async function(){ if(typeof JSZip==='undefined'){alert('ライブラリ読込に失敗しました');return;} const btn=document.getElementById('igPpt'),card=document.getElementById('igCapture'); const pt=card.style.transform,lb=btn.textContent; btn.disabled=true; btn.textContent='書き出し中…';
-  card.style.transform='none'; await raf2(); const cr=card.getBoundingClientRect(), w=card.offsetWidth,h=card.offsetHeight; const scope='ig'+(IG.state.theme==='dark'?' dark':''); const overlays=[],boxes=[]; let ok=true;
+  card.style.transform='none'; await raf2(); const cr=card.getBoundingClientRect(), {w,h}=measureCard(card); const dark=IG.state.theme==='dark'; const scope='ig'+(dark?' dark':''); const igVars=dark?{'--text':'#ffffff','--bg':'#000000','--muted':'#a8a8a8','--border':'#262626','--accent':'#0095f6'}:{'--text':'#000000','--bg':'#ffffff','--muted':'#8e8e8e','--border':'#dbdbdb','--accent':'#0095f6'}; const overlays=[],boxes=[]; let ok=true;
   const addBox=(el,lh)=>{ if(!el||!el.textContent.trim()) return; const r=el.getBoundingClientRect(),cs=getComputedStyle(el),pl=parseFloat(cs.paddingLeft)||0,pt2=parseFloat(cs.paddingTop)||0,pr=parseFloat(cs.paddingRight)||0; boxes.push({x:r.left-cr.left+pl,y:r.top-cr.top+pt2,w:Math.max(10,r.width-pl-pr),h:r.height,text:el.textContent,fpx:parseFloat(cs.fontSize)||13,lh:lh,hex:rgbToHex(cs.color)}); };
   try{ addBox(card.querySelector('.ig-cap .cap'),1.3); addBox(card.querySelector('.ig-likes'),1.2);
-    const med=card.querySelector('.ig-media'); if(med){ const r=med.getBoundingClientRect(); overlays.push({name:'投稿画像',png:await captureEl(med,[],scope,{}),x:r.left-cr.left,y:r.top-cr.top,w:r.width,h:r.height}); }
-    const act=card.querySelector('.ig-actions'); if(act){ const r=act.getBoundingClientRect(); overlays.push({name:'アクション',png:await captureEl(act,[],scope,{}),x:r.left-cr.left,y:r.top-cr.top,w:r.width,h:r.height}); }
+    const med=card.querySelector('.ig-media'); if(med){ const r=med.getBoundingClientRect(); overlays.push({name:'投稿画像',png:await captureEl(med,[],scope,igVars),x:r.left-cr.left,y:r.top-cr.top,w:r.width,h:r.height}); }
+    const act=card.querySelector('.ig-actions'); if(act){ const r=act.getBoundingClientRect(); overlays.push({name:'アクション',png:await captureEl(act,[],scope,igVars),x:r.left-cr.left,y:r.top-cr.top,w:r.width,h:r.height}); }
   }catch(e){console.warn(e);ok=false;overlays.length=0;boxes.length=0;}
-  card.classList.add('exporting'); if(ok) card.classList.add('ppx'); await raf2(); let bg=null; try{ bg=await nodeToPNG(card,w,h,3);}catch(e){console.warn(e);}
-  card.classList.remove('exporting'); card.classList.remove('ppx'); card.style.transform=pt; IG.fit();
+  card.classList.add('exporting'); if(ok) card.classList.add('ppx'); IG._expOn(card); await raf2(); let bg=null; try{ bg=await nodeToPNG(card,w,h,3);}catch(e){console.warn(e);}
+  IG._expOff(card); card.classList.remove('exporting'); card.classList.remove('ppx'); card.style.transform=pt; IG.fit();
   if(!bg){alert('書き出しに失敗しました');btn.disabled=false;btn.textContent=lb;return;}
-  try{ const durl=await buildPptx(bg,w,h,boxes,overlays,[],'Hiragino Kaku Gothic ProN'); showSaveModal(durl,'instagram_'+IG.state.user+'.pptx',null);}catch(e){console.error(e);alert('書き出しに失敗しました');}
+  try{ const durl=await buildPptx(bg,w,h,boxes,overlays,[],'Hiragino Kaku Gothic ProN',(dark?'000000':'FFFFFF')); showSaveModal(durl,'instagram_'+IG.state.user+'.pptx',null);}catch(e){console.error(e);alert('書き出しに失敗しました');}
   btn.disabled=false; btn.textContent=lb; };
 IG.ensure=function(){ if(IG.built) return; IG.built=true; IG.arch=mkArchive('snsppt_ig_v1'); IG.build();
   bindEl('igZoom','click',function(){ IG._zoom=!IG._zoom; this.textContent=IG._zoom?'画面に合わせる':'原寸表示'; IG.fit(); });
