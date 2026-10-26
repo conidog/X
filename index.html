@@ -1,7 +1,7 @@
-<!-- SNS.ppt — 単体 / ツリー / 引用RP -->
+<!-- X投稿イメージ メーカー（@McDonaldsJapan）— 単体 / ツリー / 引用RP -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SNS.ppt</title>
+<title>X投稿イメージ メーカー</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
@@ -1456,7 +1456,14 @@ function bindEl(id,ev,fn){ const el=document.getElementById(id); if(el) el.addEv
 function numField(label,id,val){ return '<div class="fld"><label class="f">'+label+'</label><input type="number" id="'+id+'" value="'+(val||0)+'" min="0"></div>'; }
 function segFld(label,name,opts,cur){ const b=opts.map(o=>'<button type="button" data-seg="'+name+'" data-val="'+o[0]+'" class="'+(cur===o[0]?'on':'')+'">'+o[1]+'</button>').join(''); return '<div class="fld"><label class="f">'+label+'</label><div class="seg">'+b+'</div></div>'; }
 function fitStage(scrollId,stageId,capId,zoom){ const wrap=document.getElementById(scrollId),stage=document.getElementById(stageId),card=document.getElementById(capId); if(!wrap||!card) return; const natW=card.offsetWidth||390; let scale=1; if(!zoom){ const avail=wrap.clientWidth-32; scale=Math.min(1,avail/natW);} card.style.transform='scale('+scale+')'; stage.style.height=(card.offsetHeight*scale)+'px'; }
-function measureCard(card){ let w=card.offsetWidth,h=card.offsetHeight; if(!w||!h){ const r=card.getBoundingClientRect(); w=w||Math.round(r.width); h=h||Math.round(r.height); } const sc=card.querySelector('.screen'); if((!w||!h)&&sc){ const sr=sc.getBoundingClientRect(); const pad=card.classList.contains('noframe')?2:26; w=w||(Math.round(sr.width)+pad); h=h||(Math.round(sr.height)+pad); } const nf=card.classList.contains('noframe'); if(!w) w=nf?392:416; if(!h) h=nf?846:870; return {w,h}; }
+function measureCard(card){
+  // the .bezel is the true phone box; its size always matches what nodeToPNG renders from the clone.
+  // card.offsetHeight can be 0 or a wrong value (flex-stretch), so prefer the bezel's measured box.
+  const bz=card.querySelector('.bezel');
+  if(bz){ const r=bz.getBoundingClientRect(); if(r.width>1&&r.height>1) return {w:Math.round(r.width),h:Math.round(r.height)}; }
+  let w=card.offsetWidth,h=card.offsetHeight; if(!w||!h){ const r=card.getBoundingClientRect(); w=w||Math.round(r.width); h=h||Math.round(r.height); }
+  const sc=card.querySelector('.screen'); if((!w||!h)&&sc){ const sr=sc.getBoundingClientRect(); const pad=card.classList.contains('noframe')?2:26; w=w||(Math.round(sr.width)+pad); h=h||(Math.round(sr.height)+pad); }
+  const nf=card.classList.contains('noframe'); if(!w) w=nf?392:416; if(!h) h=nf?846:870; return {w,h}; }
 function sbHTML(t){ return '<div class="statusbar"><div class="sb-l">'+esc(t||'9:41')+'</div><div class="sb-r">'
   + '<svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>'
   + '<svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.4c2.6 0 5 1 6.8 2.7l-1.5 1.5C12.4 5.3 10.5 4.5 8.5 4.5S4.6 5.3 3.2 6.6L1.7 5.1C3.5 3.4 5.9 2.4 8.5 2.4zm0 3.5c1.6 0 3 .6 4 1.7L11 9.1c-.7-.7-1.5-1.1-2.5-1.1s-1.8.4-2.5 1.1L4.5 7.6c1-1.1 2.4-1.7 4-1.7zm0 3.4c.7 0 1.4.3 1.9.8L8.5 11.9 6.6 10.1c.5-.5 1.2-.8 1.9-.8z"/></svg>'
